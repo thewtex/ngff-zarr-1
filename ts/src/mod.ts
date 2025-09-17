@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 export * from "./types/units.ts";
 export * from "./types/methods.ts";
 export * from "./types/array_interface.ts";

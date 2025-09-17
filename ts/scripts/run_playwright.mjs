@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// SPDX-License-Identifier: MIT
 
 import { spawn } from "child_process";
 import { dirname, join } from "path";

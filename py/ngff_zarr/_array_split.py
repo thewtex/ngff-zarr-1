@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 import dask.array
 import numpy as np
 

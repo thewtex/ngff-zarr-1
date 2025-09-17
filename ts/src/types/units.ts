@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 export type SupportedDims = "c" | "x" | "y" | "z" | "t";
 
 export type SpatialDims = "x" | "y" | "z";

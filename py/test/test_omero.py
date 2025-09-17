@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 import pytest
 import numpy as np
 from zarr.storage import MemoryStore

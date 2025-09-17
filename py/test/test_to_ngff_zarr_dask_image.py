@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 from ngff_zarr import Methods, to_multiscales
 
 from ._data import verify_against_baseline

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 import { assertEquals, assertExists, assertNotEquals } from "@std/assert";
 import { fromNgffZarr, type MemoryStore } from "../src/io/from_ngff_zarr.ts";
 import { toNgffZarr } from "../src/io/to_ngff_zarr.ts";

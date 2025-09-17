@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 import json
 from packaging import version
 import tempfile

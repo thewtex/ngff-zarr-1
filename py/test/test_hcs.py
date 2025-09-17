@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Test high content screening (HCS) functionality."""
 
 import pytest

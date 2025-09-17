@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 import { z } from "zod";
 
 // Version schemas for different OME-Zarr specification versions

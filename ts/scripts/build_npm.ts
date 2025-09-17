@@ -1,4 +1,5 @@
 #!/usr/bin/env -S deno run --allow-all
+// SPDX-License-Identifier: MIT
 
 import { build, emptyDir } from "dnt";
 

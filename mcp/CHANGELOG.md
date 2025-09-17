@@ -1,3 +1,4 @@
+<!-- SPDX-License-Identifier: MIT -->
 # Changelog
 
 All notable changes to the ngff-zarr-mcp package will be documented in this

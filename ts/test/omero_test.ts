@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 import { assertEquals, assertExists, assertThrows } from "@std/assert";
 import { fromNgffZarr } from "../src/io/from_ngff_zarr.ts";
 import { toNgffZarr } from "../src/io/to_ngff_zarr.ts";

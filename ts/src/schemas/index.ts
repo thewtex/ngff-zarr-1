@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 // Re-export all schemas with explicit naming to avoid conflicts
 export * from "./units.ts";
 export * from "./methods.ts";

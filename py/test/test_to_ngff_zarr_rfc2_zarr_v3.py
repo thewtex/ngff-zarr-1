@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 import tempfile
 from packaging import version
 

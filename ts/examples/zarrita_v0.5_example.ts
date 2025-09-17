@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * Example demonstrating zarrita v0.5.2 API improvements
  *

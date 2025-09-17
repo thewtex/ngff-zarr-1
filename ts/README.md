@@ -1,3 +1,5 @@
+<!-- SPDX-License-Identifier: MIT -->
+
 # ngff-zarr TypeScript
 
 A TypeScript implementation of ngff-zarr for reading and writing OME-Zarr files,

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 import pytest
 from ngff_zarr import Methods, to_multiscales, to_ngff_zarr
 from ngff_zarr._zarr_kwargs import zarr_kwargs

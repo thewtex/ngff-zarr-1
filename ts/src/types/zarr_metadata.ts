@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 import type { AxesType, SupportedDims, Units } from "./units.ts";
 
 export interface Axis {

@@ -1,3 +1,4 @@
+<!-- SPDX-License-Identifier: MIT -->
 # 🔖 Methods
 
 To avoid [aliasing artifacts] when generating a multiscale representation, it is

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 // @ts-check
 
 import process from "node:process";

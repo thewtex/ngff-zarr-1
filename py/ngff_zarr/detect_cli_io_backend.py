@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 import sys
 from enum import Enum
 from pathlib import Path

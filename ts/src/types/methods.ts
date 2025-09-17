@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 export enum Methods {
   ITKWASM_GAUSSIAN = "itkwasm_gaussian",
   ITKWASM_BIN_SHRINK = "itkwasm_bin_shrink",

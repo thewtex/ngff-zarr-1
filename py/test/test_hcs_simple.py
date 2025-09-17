@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """Simple test to verify HCS functionality works."""
 
 import sys

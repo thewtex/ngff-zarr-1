@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Integration test for RFC 4 anatomical orientation."""
 
 import numpy as np

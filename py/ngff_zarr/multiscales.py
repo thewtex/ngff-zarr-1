@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 from dataclasses import dataclass
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 

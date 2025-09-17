@@ -1,3 +1,4 @@
+<!-- SPDX-License-Identifier: MIT -->
 # 🔨 Development
 
 Contributions are welcome and appreciated!

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 from typing import Tuple
 from itertools import product
 

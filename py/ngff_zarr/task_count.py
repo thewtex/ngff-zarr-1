@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 from typing import Optional, Set
 
 from .ngff_image import NgffImage

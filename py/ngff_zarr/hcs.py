@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """
 High Content Screening (HCS) support for OME-Zarr NGFF.
 

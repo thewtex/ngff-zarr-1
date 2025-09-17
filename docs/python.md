@@ -1,3 +1,4 @@
+<!-- SPDX-License-Identifier: MIT -->
 # 🐍 Python Interface
 
 NGFF-Zarr is a Python library that provides a simple, natural interface for

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Tests for convert_to_ome_zarr function."""
 
 import pytest

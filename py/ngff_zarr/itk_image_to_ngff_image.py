@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 from dataclasses import asdict
 
 import dask.array

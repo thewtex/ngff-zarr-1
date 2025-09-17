@@ -1,4 +1,5 @@
 #!/usr/bin/env -S deno test --allow-all
+// SPDX-License-Identifier: MIT
 
 /**
  * Test script to verify ITK-Wasm data writing functionality

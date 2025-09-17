@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Utility functions for ngff-zarr MCP server."""
 
 import tempfile

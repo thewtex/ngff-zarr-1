@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Basic tests for ngff-zarr MCP server."""
 
 import pytest

@@ -1,3 +1,4 @@
+<!-- SPDX-License-Identifier: MIT -->
 # ngff-zarr
 
 [![PyPI - Version](https://img.shields.io/pypi/v/ngff-zarr.svg)](https://pypi.org/project/ngff-zarr)

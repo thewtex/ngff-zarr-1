@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 import { assertEquals, assertExists } from "@std/assert";
 import {
   ImageSchemaV01,

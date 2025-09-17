@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 from collections import OrderedDict
 
 import dask.array

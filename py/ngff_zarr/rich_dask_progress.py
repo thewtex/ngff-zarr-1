@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 from typing import Dict, Optional, Set
 
 from dask.callbacks import Callback

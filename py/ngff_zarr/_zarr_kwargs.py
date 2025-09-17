@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 import zarr
 from packaging import version
 

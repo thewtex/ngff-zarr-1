@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * Convert ITK-Wasm Image to NgffImage
  */

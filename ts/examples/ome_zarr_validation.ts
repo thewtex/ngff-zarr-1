@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * Example demonstrating OME-Zarr schema validation usage
  */

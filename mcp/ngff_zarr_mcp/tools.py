@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """MCP tools for ngff-zarr image conversion."""
 
 import tempfile

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 import itk
 import itkwasm
 import numpy as np

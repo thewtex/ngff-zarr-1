@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 from collections.abc import MutableMapping
 from typing import Hashable, Mapping, Optional, Sequence, Union
 

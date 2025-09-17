@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 import PQueue from "p-queue";
 
 export type ChunkQueue = {

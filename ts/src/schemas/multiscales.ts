@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 import { z } from "zod";
 import { NgffImageOptionsSchema } from "./ngff_image.ts";
 import { MetadataSchema } from "./zarr_metadata.ts";

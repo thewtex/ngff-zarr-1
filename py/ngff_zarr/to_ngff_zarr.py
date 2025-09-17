@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 import sys
 from collections.abc import MutableMapping
 from dataclasses import asdict

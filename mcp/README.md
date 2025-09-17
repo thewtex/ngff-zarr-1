@@ -1,3 +1,4 @@
+<!-- SPDX-License-Identifier: MIT -->
 # ngff-zarr MCP Server
 
 `ngff-zarr-mcp` is a Model Context Protocol (MCP) server that provides AI agents

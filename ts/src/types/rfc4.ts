@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * RFC 4 implementation for anatomical orientation in OME-NGFF.
  *

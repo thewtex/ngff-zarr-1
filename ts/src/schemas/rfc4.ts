@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 import { z } from "zod";
 
 // Anatomical Orientation Values based on RFC4

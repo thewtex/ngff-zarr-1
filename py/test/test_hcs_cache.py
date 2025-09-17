@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """
 Test to verify HCS cache functionality is working correctly.
 """

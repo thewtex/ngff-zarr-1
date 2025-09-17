@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 import type { HCSPlate, PlateMetadata } from "../types/hcs.ts";
 import { HCSPlate as HCSPlateClass } from "../types/hcs.ts";
 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 import * as zarr from "zarrita";
 import { Multiscales } from "../types/multiscales.ts";
 import { NgffImage } from "../types/ngff_image.ts";

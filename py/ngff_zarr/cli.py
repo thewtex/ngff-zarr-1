@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# SPDX-License-Identifier: MIT
 
 if __name__ == "__main__" and __package__ is None:
     __package__ = "ngff_zarr"

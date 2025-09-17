@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 import {
   AffineTransformationSchema,
   // RFC4 schemas

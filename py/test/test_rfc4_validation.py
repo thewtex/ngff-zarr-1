@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Test RFC 4 validation in from_ngff_zarr."""
 
 import pytest

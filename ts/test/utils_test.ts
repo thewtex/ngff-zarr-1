@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 import { assertEquals, assertThrows } from "@std/assert";
 import {
   isValidDimension,

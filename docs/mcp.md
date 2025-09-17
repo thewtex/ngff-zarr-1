@@ -1,3 +1,4 @@
+<!-- SPDX-License-Identifier: MIT -->
 # 🤖 MCP Server
 
 The [`ngff-zarr-mcp`] Python package provides a Model Context Protocol (MCP)
