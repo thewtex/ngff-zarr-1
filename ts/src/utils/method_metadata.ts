@@ -40,8 +40,8 @@ export function getMethodMetadata(method: Methods): MethodMetadata | undefined {
     return undefined;
   }
 
-  // For TypeScript/browser environment, we can't easily get package versions
-  // so we'll use a placeholder or try to infer from known versions
+  // TODO: Determine package version dynamically if possible,
+  // For now use a placeholder
   const version = "unknown";
 
   return {
