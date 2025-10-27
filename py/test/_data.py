@@ -33,8 +33,8 @@ def input_images():
     pooch.retrieve(
         fname="data.tar.gz",
         path=test_dir,
-        # url="https://github.com/thewtex/ngff-zarr/releases/download/v0.15.0/ngff-zarr-0.15.0-test-data.tar.gz",
-        url=f"https://itk.mypinata.cloud/ipfs/{test_data_ipfs_cid}/data.tar.gz",
+        url="https://github.com/thewtex/ngff-zarr/releases/download/v0.18.0/ngff-zarr-0.18.0-test-data.tar.gz",
+        # url=f"https://itk.mypinata.cloud/ipfs/{test_data_ipfs_cid}/data.tar.gz",
         # url=f"https://{test_data_ipfs_cid}.ipfs.w3s.link/ipfs/{test_data_ipfs_cid}/data.tar.gz",
         known_hash=f"sha256:{test_data_sha256}",
         processor=untar,
