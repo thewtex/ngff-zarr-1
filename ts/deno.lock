@@ -46,6 +46,8 @@
     "jsr:@ts-morph/common@0.24": "0.24.0",
     "jsr:@zarrita/storage@~0.1.1": "0.1.1",
     "jsr:@zarrita/zarrita@~0.5.2": "0.5.2",
+    "npm:@itk-wasm/downsample@^1.7.1": "1.7.1",
+    "npm:@itk-wasm/image-io@^1.6.0": "1.6.0",
     "npm:@playwright/test@^1.54.1": "1.54.1",
     "npm:@types/node@*": "22.15.15",
     "npm:itk-wasm@^1.0.0-b.195": "1.0.0-b.195",
@@ -300,6 +302,20 @@
         "tar"
       ],
       "bin": true
+    },
+    "@itk-wasm/downsample@1.7.1": {
+      "integrity": "sha512-/8+JOVZKTWV+kVDR8kgGWjtjYzA3h9Z67Mvg5JrSI+wmh/TmLDu/wS63eFi6XTm95hfS/bGYU/C9ET43BHmmXQ==",
+      "dependencies": [
+        "itk-wasm"
+      ]
+    },
+    "@itk-wasm/image-io@1.6.0": {
+      "integrity": "sha512-cx+lHpTc3tmkfKMOMpuwGfQyhsYmac09NoOjeo5bOW45pp040boQiPow8Q/GQmjHUfI9c+H7SqeJCfKVS5SPRw==",
+      "dependencies": [
+        "axios",
+        "itk-wasm",
+        "mime-types"
+      ]
     },
     "@multiformats/blake2@2.0.2": {
       "integrity": "sha512-AOWu6Tyuk5UoT5m4faB6ntVnPB8EmuD6rn18s4cCgHNEGgsamT8GdvjP9DYjzFHQVaP/0L3CaKqWQqJlXx9ecw==",
@@ -1329,6 +1345,8 @@
       "jsr:@std/path@^1.0.8",
       "jsr:@zarrita/storage@~0.1.1",
       "jsr:@zarrita/zarrita@~0.5.2",
+      "npm:@itk-wasm/downsample@^1.7.1",
+      "npm:@itk-wasm/image-io@^1.6.0",
       "npm:@playwright/test@^1.54.1",
       "npm:itk-wasm@^1.0.0-b.195",
       "npm:microdiff@^1.4.0",

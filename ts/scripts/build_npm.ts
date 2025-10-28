@@ -49,11 +49,15 @@ await build({
     },
     files: ["esm/", "script/", "types/", "README.md", "LICENSE"],
     dependencies: {
+      "@itk-wasm/downsample": "^1.7.1",
       "itk-wasm": "^1.0.0-b.195",
       "p-queue": "^8.1.0",
       "@zarrita/storage": "^0.1.1",
       zod: "^4.0.2",
       zarrita: "^0.5.2",
+    },
+    devDependencies: {
+      "@itk-wasm/image-io": "^1.6.0",
     },
   },
   postBuild() {

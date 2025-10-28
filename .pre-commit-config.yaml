@@ -30,6 +30,7 @@ repos:
     rev: "v2.2.5"
     hooks:
       - id: codespell
+        exclude: ts/deno.lock
 
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: "v0.9.0.5"
