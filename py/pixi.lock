@@ -7212,7 +7212,7 @@ packages:
 - pypi: ./
   name: ngff-zarr
   version: 0.18.0
-  sha256: 87d0828f85dbeb4dd7ff04ea526fc811eb18cf2b3d9f6e6f06a3f1a73cc77f91
+  sha256: d2467d23256c0a92541aae178ab53b96130684174fc4cec010051c883ddbd2b9
   requires_dist:
   - dask[array]
   - importlib-resources
