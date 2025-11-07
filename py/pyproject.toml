@@ -178,6 +178,9 @@ lint = { features = ["lint"], no-default-feature = true, solve-group = "default"
 docs = { features = ["docs"], no-default-feature = true, solve-group = "default" }
 data = { features = ["data"], no-default-feature = true, solve-group = "default" }
 
+[tool.pixi.feature.test.dependencies]
+python = ">=3.9.19,<3.14.0"
+
 [tool.pixi.feature.test.tasks]
 test = { cmd = "pytest", description = "Run the test suite" }
 download-test-data = "pytest -k test_from_ngff_zarr --maxfail=1 -v"
