@@ -51,18 +51,11 @@ export async function toMultiscales(
       ? "bin_shrink"
       : "label_image";
 
-    console.log(
-      "@@@ About to call downsampleItkWasm with method:",
-      method,
-      "smoothing:",
-      smoothing,
-    );
     images = await downsampleItkWasm(
       image,
       scaleFactors as (Record<string, number> | number)[],
       smoothing,
     );
-    console.log("@@@ downsampleItkWasm returned", images.length, "images");
   } else {
     // Fallback: create only the base image (no actual downsampling)
     images = [image];
