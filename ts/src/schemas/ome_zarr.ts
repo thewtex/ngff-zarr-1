@@ -159,7 +159,14 @@ export const LabelSchemaV04 = z.object({
 });
 
 // Plate schemas
-export const PlateAcquisitionSchema = z.object({
+export const PlateAcquisitionSchema: z.ZodType<{
+  id: number;
+  maximumfieldcount?: number | undefined;
+  name?: string | undefined;
+  description?: string | undefined;
+  starttime?: number | undefined;
+  endtime?: number | undefined;
+}> = z.object({
   id: z.number().min(0),
   maximumfieldcount: z.number().positive().optional(),
   name: z.string().optional(),
@@ -168,15 +175,23 @@ export const PlateAcquisitionSchema = z.object({
   endtime: z.number().min(0).optional(),
 });
 
-export const PlateColumnSchema = z.object({
+export const PlateColumnSchema: z.ZodType<{
+  name: string;
+}> = z.object({
   name: z.string().regex(/^[A-Za-z0-9]+$/),
 });
 
-export const PlateRowSchema = z.object({
+export const PlateRowSchema: z.ZodType<{
+  name: string;
+}> = z.object({
   name: z.string().regex(/^[A-Za-z0-9]+$/),
 });
 
-export const PlateWellSchema = z.object({
+export const PlateWellSchema: z.ZodType<{
+  path: string;
+  rowIndex: number;
+  columnIndex: number;
+}> = z.object({
   path: z.string().regex(/^[A-Za-z0-9]+\/[A-Za-z0-9]+$/),
   rowIndex: z.number().min(0),
   columnIndex: z.number().min(0),
@@ -197,7 +212,10 @@ export const PlateSchemaV05 = z.object({
 });
 
 // Well schemas
-export const WellImageSchema = z.object({
+export const WellImageSchema: z.ZodType<{
+  acquisition?: number | undefined;
+  path: string;
+}> = z.object({
   acquisition: z.number().optional(),
   path: z.string().regex(/^[A-Za-z0-9]+$/),
 });

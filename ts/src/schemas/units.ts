@@ -9,26 +9,25 @@ import {
   type Units,
 } from "../types/units.ts";
 
-export const SupportedDimsSchema: z.ZodTypeAny = z.enum([
+export const SupportedDimsSchema = z.enum([
   "c",
   "x",
   "y",
   "z",
   "t",
-]);
+]) satisfies z.ZodType<"c" | "x" | "y" | "z" | "t">;
 
-export const SpatialDimsSchema: z.ZodTypeAny = z.enum(["x", "y", "z"]);
+export const SpatialDimsSchema = z.enum(["x", "y", "z"]) satisfies z.ZodType<
+  "x" | "y" | "z"
+>;
 
-export const AxesTypeSchema: z.ZodTypeAny = z.enum([
+export const AxesTypeSchema = z.enum([
   "time",
   "space",
   "channel",
-  "array",
-  "coordinate",
-  "displacement",
-]);
+]) satisfies z.ZodType<"time" | "space" | "channel">;
 
-export const SpaceUnitsSchema: z.ZodTypeAny = z.enum([
+export const SpaceUnitsSchema = z.enum([
   "angstrom",
   "attometer",
   "centimeter",
@@ -55,9 +54,36 @@ export const SpaceUnitsSchema: z.ZodTypeAny = z.enum([
   "yottameter",
   "zeptometer",
   "zettameter",
-]);
+]) satisfies z.ZodType<
+  | "angstrom"
+  | "attometer"
+  | "centimeter"
+  | "decimeter"
+  | "exameter"
+  | "femtometer"
+  | "foot"
+  | "gigameter"
+  | "hectometer"
+  | "inch"
+  | "kilometer"
+  | "megameter"
+  | "meter"
+  | "micrometer"
+  | "mile"
+  | "millimeter"
+  | "nanometer"
+  | "parsec"
+  | "petameter"
+  | "picometer"
+  | "terameter"
+  | "yard"
+  | "yoctometer"
+  | "yottameter"
+  | "zeptometer"
+  | "zettameter"
+>;
 
-export const TimeUnitsSchema: z.ZodTypeAny = z.enum([
+export const TimeUnitsSchema = z.enum([
   "attosecond",
   "centisecond",
   "day",
@@ -81,7 +107,31 @@ export const TimeUnitsSchema: z.ZodTypeAny = z.enum([
   "yottasecond",
   "zeptosecond",
   "zettasecond",
-]);
+]) satisfies z.ZodType<
+  | "attosecond"
+  | "centisecond"
+  | "day"
+  | "decisecond"
+  | "exasecond"
+  | "femtosecond"
+  | "gigasecond"
+  | "hectosecond"
+  | "hour"
+  | "kilosecond"
+  | "megasecond"
+  | "microsecond"
+  | "millisecond"
+  | "minute"
+  | "nanosecond"
+  | "petasecond"
+  | "picosecond"
+  | "second"
+  | "terasecond"
+  | "yoctosecond"
+  | "yottasecond"
+  | "zeptosecond"
+  | "zettasecond"
+>;
 
 export const UnitsSchema: z.ZodUnion<
   [typeof SpaceUnitsSchema, typeof TimeUnitsSchema]

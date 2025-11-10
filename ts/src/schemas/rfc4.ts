@@ -3,7 +3,26 @@
 import { z } from "zod";
 
 // Anatomical Orientation Values based on RFC4
-export const AnatomicalOrientationValuesSchema = z.enum([
+export const AnatomicalOrientationValuesSchema: z.ZodType<
+  | "left-to-right"
+  | "right-to-left"
+  | "anterior-to-posterior"
+  | "posterior-to-anterior"
+  | "inferior-to-superior"
+  | "superior-to-inferior"
+  | "dorsal-to-ventral"
+  | "ventral-to-dorsal"
+  | "dorsal-to-palmar"
+  | "palmar-to-dorsal"
+  | "dorsal-to-plantar"
+  | "plantar-to-dorsal"
+  | "rostral-to-caudal"
+  | "caudal-to-rostral"
+  | "cranial-to-caudal"
+  | "caudal-to-cranial"
+  | "proximal-to-distal"
+  | "distal-to-proximal"
+> = z.enum([
   "left-to-right",
   "right-to-left",
   "anterior-to-posterior",
@@ -25,7 +44,28 @@ export const AnatomicalOrientationValuesSchema = z.enum([
 ]);
 
 // AnatomicalOrientation object schema
-export const AnatomicalOrientationSchema = z.object({
+export const AnatomicalOrientationSchema: z.ZodType<{
+  type: "anatomical";
+  value:
+    | "left-to-right"
+    | "right-to-left"
+    | "anterior-to-posterior"
+    | "posterior-to-anterior"
+    | "inferior-to-superior"
+    | "superior-to-inferior"
+    | "dorsal-to-ventral"
+    | "ventral-to-dorsal"
+    | "dorsal-to-palmar"
+    | "palmar-to-dorsal"
+    | "dorsal-to-plantar"
+    | "plantar-to-dorsal"
+    | "rostral-to-caudal"
+    | "caudal-to-rostral"
+    | "cranial-to-caudal"
+    | "caudal-to-cranial"
+    | "proximal-to-distal"
+    | "distal-to-proximal";
+}> = z.object({
   type: z.literal("anatomical"),
   value: AnatomicalOrientationValuesSchema,
 });
