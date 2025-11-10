@@ -46,6 +46,7 @@
     "jsr:@ts-morph/common@0.24": "0.24.0",
     "jsr:@zarrita/storage@~0.1.1": "0.1.1",
     "jsr:@zarrita/zarrita@~0.5.2": "0.5.2",
+    "npm:@itk-wasm/compare-images@^5.4.1": "5.4.1",
     "npm:@itk-wasm/downsample@^1.8.1": "1.8.1",
     "npm:@itk-wasm/image-io@^1.6.0": "1.6.0",
     "npm:@playwright/test@^1.54.1": "1.54.1",
@@ -289,6 +290,12 @@
         "multiformats",
         "protobufjs",
         "rabin-rs"
+      ]
+    },
+    "@itk-wasm/compare-images@5.4.1": {
+      "integrity": "sha512-ocCaBMVLAavnB0NHFfDgjmeVvJdqGvZnCrVsxH8aeYsLE6KE+2tizN3qPDpGIdQ7xZGqL20fxpBEl7DLSN74xA==",
+      "dependencies": [
+        "itk-wasm@1.0.0-b.196"
       ]
     },
     "@itk-wasm/dam@1.1.1": {
@@ -1364,6 +1371,7 @@
       "jsr:@std/path@^1.0.8",
       "jsr:@zarrita/storage@~0.1.1",
       "jsr:@zarrita/zarrita@~0.5.2",
+      "npm:@itk-wasm/compare-images@^5.4.1",
       "npm:@itk-wasm/downsample@^1.8.1",
       "npm:@itk-wasm/image-io@^1.6.0",
       "npm:@playwright/test@^1.54.1",

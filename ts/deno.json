@@ -21,6 +21,7 @@
     "build:bundle": "deno bundle --platform=browser --format=esm --minify -o test/browser-npm/ngff-zarr.bundle.js src/browser-mod.ts"
   },
   "imports": {
+    "@itk-wasm/compare-images": "npm:@itk-wasm/compare-images@^5.4.1",
     "@itk-wasm/downsample": "npm:@itk-wasm/downsample@^1.8.1",
     "@itk-wasm/image-io": "npm:@itk-wasm/image-io@^1.6.0",
     "@std/assert": "jsr:@std/assert@^1.0.0",
