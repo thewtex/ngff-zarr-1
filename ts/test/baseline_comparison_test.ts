@@ -109,7 +109,7 @@ async function compareImages(
   );
 }
 
-Deno.test.only("cthead1 - ITKWASM_GAUSSIAN scale factors [2, 4]", async () => {
+Deno.test("cthead1 - ITKWASM_GAUSSIAN scale factors [2, 4]", async () => {
   // Read input image
   const inputPath = join(INPUT_DIR, "cthead1.png");
   const itkImage = await readImageNode(inputPath);
@@ -298,81 +298,84 @@ Deno.test(
   },
 );
 
-Deno.test("MR-head - ITKWASM_GAUSSIAN scale factors [2, 3, 4]", async () => {
-  // Read input image
-  const inputPath = join(INPUT_DIR, "MR-head.nrrd");
-  const itkImage = await readImageNode(inputPath);
-  assertExists(itkImage);
-  const ngffImage = await itkImageToNgffImage(itkImage);
+Deno.test.only(
+  "MR-head - ITKWASM_GAUSSIAN scale factors [2, 3, 4]",
+  async () => {
+    // Read input image
+    const inputPath = join(INPUT_DIR, "MR-head.nrrd");
+    const itkImage = await readImageNode(inputPath);
+    assertExists(itkImage);
+    const ngffImage = await itkImageToNgffImage(itkImage);
 
-  // Generate multiscales
-  const multiscales = await toMultiscales(ngffImage, {
-    scaleFactors: [2, 3, 4],
-    method: Methods.ITKWASM_GAUSSIAN,
-  });
+    // Generate multiscales
+    const multiscales = await toMultiscales(ngffImage, {
+      scaleFactors: [2, 3, 4],
+      method: Methods.ITKWASM_GAUSSIAN,
+    });
 
-  // Write to zarr (both in-memory and to filesystem)
-  const testStore = new Map();
-  await toNgffZarr(testStore, multiscales);
+    // Write to zarr (both in-memory and to filesystem)
+    const testStore = new Map();
+    await toNgffZarr(testStore, multiscales);
 
-  // Also write to filesystem for inspection
-  const outputZarrPath = join(OUTPUT_DIR, "mr_head_gaussian_2_3_4.zarr");
-  await toNgffZarr(outputZarrPath, multiscales);
-  console.log(`  Wrote zarr to ${outputZarrPath}`);
+    // Also write to filesystem for inspection
+    const outputZarrPath = join(OUTPUT_DIR, "mr_head_gaussian_2_3_4.zarr");
+    await toNgffZarr(outputZarrPath, multiscales);
+    console.log(`  Wrote zarr to ${outputZarrPath}`);
 
-  // Read back from zarr
-  const readMultiscales = await fromNgffZarr(testStore);
+    // Read back from zarr
+    const readMultiscales = await fromNgffZarr(testStore);
 
-  // Convert first three scales to ITK images and compare
-  const testImageS0 = await ngffImageToItkImage(readMultiscales.images[0]);
-  await writeScaleImage(testImageS0, "mr_head_gaussian", 0, "test");
-  const baselineImageS0 = await readBaselineScaleImage(
-    "MR-head",
-    "2_3_4/ITKWASM_GAUSSIAN.zarr",
-    0,
-  );
-  await writeScaleImage(baselineImageS0, "mr_head_gaussian", 0, "baseline");
-  await compareImages(testImageS0, baselineImageS0, "MR-head s0 (original)");
+    // Convert first three scales to ITK images and compare
+    const testImageS0 = await ngffImageToItkImage(readMultiscales.images[0]);
+    await writeScaleImage(testImageS0, "mr_head_gaussian", 0, "test");
+    const baselineImageS0 = await readBaselineScaleImage(
+      "MR-head",
+      "2_3_4/ITKWASM_GAUSSIAN.zarr",
+      0,
+    );
+    await writeScaleImage(baselineImageS0, "mr_head_gaussian", 0, "baseline");
+    await compareImages(testImageS0, baselineImageS0, "MR-head s0 (original)");
 
-  const testImageS1 = await ngffImageToItkImage(readMultiscales.images[1]);
-  await writeScaleImage(testImageS1, "mr_head_gaussian", 1, "test");
-  const baselineImageS1 = await readBaselineScaleImage(
-    "MR-head",
-    "2_3_4/ITKWASM_GAUSSIAN.zarr",
-    1,
-  );
-  await writeScaleImage(baselineImageS1, "mr_head_gaussian", 1, "baseline");
-  await compareImages(
-    testImageS1,
-    baselineImageS1,
-    "MR-head s1 (2x downsample)",
-  );
+    const testImageS1 = await ngffImageToItkImage(readMultiscales.images[1]);
+    await writeScaleImage(testImageS1, "mr_head_gaussian", 1, "test");
+    const baselineImageS1 = await readBaselineScaleImage(
+      "MR-head",
+      "2_3_4/ITKWASM_GAUSSIAN.zarr",
+      1,
+    );
+    await writeScaleImage(baselineImageS1, "mr_head_gaussian", 1, "baseline");
+    await compareImages(
+      testImageS1,
+      baselineImageS1,
+      "MR-head s1 (2x downsample)",
+    );
 
-  const testImageS2 = await ngffImageToItkImage(readMultiscales.images[2]);
-  await writeScaleImage(testImageS2, "mr_head_gaussian", 2, "test");
-  const baselineImageS2 = await readBaselineScaleImage(
-    "MR-head",
-    "2_3_4/ITKWASM_GAUSSIAN.zarr",
-    2,
-  );
-  await writeScaleImage(baselineImageS2, "mr_head_gaussian", 2, "baseline");
-  await compareImages(
-    testImageS2,
-    baselineImageS2,
-    "MR-head s2 (3x downsample)",
-  );
+    const testImageS2 = await ngffImageToItkImage(readMultiscales.images[2]);
+    await writeScaleImage(testImageS2, "mr_head_gaussian", 2, "test");
+    const baselineImageS2 = await readBaselineScaleImage(
+      "MR-head",
+      "2_3_4/ITKWASM_GAUSSIAN.zarr",
+      2,
+    );
+    await writeScaleImage(baselineImageS2, "mr_head_gaussian", 2, "baseline");
+    await compareImages(
+      testImageS2,
+      baselineImageS2,
+      "MR-head s2 (3x downsample)",
+    );
 
-  const testImageS3 = await ngffImageToItkImage(readMultiscales.images[3]);
-  await writeScaleImage(testImageS3, "mr_head_gaussian", 3, "test");
-  const baselineImageS3 = await readBaselineScaleImage(
-    "MR-head",
-    "2_3_4/ITKWASM_GAUSSIAN.zarr",
-    3,
-  );
-  await writeScaleImage(baselineImageS3, "mr_head_gaussian", 3, "baseline");
-  await compareImages(
-    testImageS3,
-    baselineImageS3,
-    "MR-head s3 (4x downsample)",
-  );
-});
+    const testImageS3 = await ngffImageToItkImage(readMultiscales.images[3]);
+    await writeScaleImage(testImageS3, "mr_head_gaussian", 3, "test");
+    const baselineImageS3 = await readBaselineScaleImage(
+      "MR-head",
+      "2_3_4/ITKWASM_GAUSSIAN.zarr",
+      3,
+    );
+    await writeScaleImage(baselineImageS3, "mr_head_gaussian", 3, "baseline");
+    await compareImages(
+      testImageS3,
+      baselineImageS3,
+      "MR-head s3 (4x downsample)",
+    );
+  },
+);

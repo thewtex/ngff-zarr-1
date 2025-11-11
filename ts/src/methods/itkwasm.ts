@@ -416,14 +416,6 @@ async function downsampleGaussian(
   const cropRadius = new Array(shrinkFactors.length).fill(0);
 
   // Perform downsampling
-  console.log(
-    "Performing Gaussian downsampling with shrinkFactors:",
-    shrinkFactors,
-    "and cropRadius:",
-    cropRadius,
-  );
-  console.log("ITK image size:", itkImage.size);
-  console.log("ITK image data length:", itkImage.data?.length);
   const { downsampled } = await downsample(itkImage, {
     shrinkFactors,
     cropRadius: cropRadius,
@@ -584,10 +576,6 @@ export async function downsampleItkWasm(
   scaleFactors: (Record<string, number> | number)[],
   smoothing: "gaussian" | "bin_shrink" | "label_image",
 ): Promise<NgffImage[]> {
-  console.log("=== downsampleItkWasm called ===");
-  console.log("scaleFactors:", scaleFactors);
-  console.log("smoothing:", smoothing);
-
   const multiscales: NgffImage[] = [ngffImage];
   let previousImage = ngffImage;
   const dims = ngffImage.dims;
@@ -600,8 +588,6 @@ export async function downsampleItkWasm(
 
   // Get the shared store from the original image - all scales will use this same store
   const sharedStore = ngffImage.data.store as Map<string, Uint8Array>;
-  console.log("@@@ sharedStore size at start:", sharedStore.size);
-  console.log("@@@ sharedStore keys at start:", Array.from(sharedStore.keys()));
 
   for (let i = 0; i < scaleFactors.length; i++) {
     const scaleFactor = scaleFactors[i];
@@ -645,12 +631,6 @@ export async function downsampleItkWasm(
 
     multiscales.push(downsampled);
     previousImage = downsampled;
-
-    console.log(
-      `@@@ After scale ${i + 1}, sharedStore size:`,
-      sharedStore.size,
-    );
-    console.log(`@@@ sharedStore keys:`, Array.from(sharedStore.keys()));
   }
 
   return multiscales;
