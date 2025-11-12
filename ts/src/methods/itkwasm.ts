@@ -36,9 +36,9 @@ function dimScaleFactors(
     for (const dim of dims) {
       if (SPATIAL_DIMS.includes(dim)) {
         // Divide by previous factor to get incremental scaling
-        dimFactors[dim] = Math.floor(
-          scaleFactor / (previousDimFactors[dim] || 1),
-        );
+        // Use Math.round to handle fractional factors properly (e.g., 3/2 = 1.5 → 2)
+        const incrementalFactor = scaleFactor / (previousDimFactors[dim] || 1);
+        dimFactors[dim] = Math.max(1, Math.round(incrementalFactor));
       } else {
         dimFactors[dim] = previousDimFactors[dim] || 1;
       }
@@ -46,9 +46,10 @@ function dimScaleFactors(
   } else {
     for (const dim in scaleFactor) {
       // Divide by previous factor to get incremental scaling
-      dimFactors[dim] = Math.floor(
-        scaleFactor[dim] / (previousDimFactors[dim] || 1),
-      );
+      // Use Math.round to handle fractional factors properly
+      const incrementalFactor = scaleFactor[dim] /
+        (previousDimFactors[dim] || 1);
+      dimFactors[dim] = Math.max(1, Math.round(incrementalFactor));
     }
     // Add dims not in scale_factor with factor of 1
     for (const dim of dims) {
@@ -168,6 +169,10 @@ async function zarrToItkImage(
   const spatialShape = isVector ? shape.slice(0, -1) : shape;
   const components = isVector ? shape[shape.length - 1] : 1;
 
+  // ITK expects size in physical space order [x, y, z], but spatialShape is in array order [z, y, x]
+  // So we need to reverse it
+  const itkSize = [...spatialShape].reverse();
+
   // Create ITK-Wasm image
   const itkImage: Image = {
     imageType: {
@@ -180,7 +185,7 @@ async function zarrToItkImage(
     origin: spatialShape.map(() => 0),
     spacing: spatialShape.map(() => 1),
     direction: createIdentityMatrix(spatialShape.length),
-    size: spatialShape as number[],
+    size: itkSize,
     data,
     metadata: new Map(),
   };
@@ -306,9 +311,10 @@ function createIdentityMatrix(dimension: number): Float64Array {
  * Convert ITK-Wasm Image back to zarr array
  * Uses the provided store instead of creating a new one
  *
- * Important: ITK stores images in C-order (row-major) with dimensions in reverse order
- * compared to typical visualization. For example, a 2D image is stored as [y, x] and
- * a 3D image as [z, y, x]. Zarr arrays should match this layout.
+ * Important: ITK-Wasm stores size in physical space order [x, y, z], but data in
+ * column-major order (x contiguous). This column-major layout with size [x, y, z]
+ * is equivalent to C-order (row-major) with shape [z, y, x]. We reverse the size
+ * to get the zarr shape and use C-order strides for that reversed shape.
  */
 async function itkImageToZarr(
   itkImage: Image,
@@ -344,9 +350,10 @@ async function itkImageToZarr(
     throw new Error(`Unsupported data type: ${itkImage.data.constructor.name}`);
   }
 
-  // ITK size is in [z, y, x] order for 3D (or [y, x] for 2D), which is already C-order
-  // Zarr expects the same, so we use itkImage.size directly
-  const shape = itkImage.size;
+  // ITK stores size/spacing/origin in physical space order [x, y, z],
+  // but the data buffer is in C-order (row-major) which means [z, y, x] indexing.
+  // We need to reverse the size to match the data layout, just like we do for spacing/origin.
+  const shape = [...itkImage.size].reverse();
 
   // Chunk shape should also be in the same order as shape
   // Ensure chunkShape matches the dimensionality

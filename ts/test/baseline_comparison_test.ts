@@ -77,36 +77,53 @@ async function compareImages(
   baselineImage: ItkWasmImage,
   testName: string,
 ): Promise<void> {
-  const result = await compareImagesNode(testImage, {
-    baselineImages: [baselineImage],
-    differenceThreshold: 0.0,
-    radiusTolerance: 0,
-    numberOfPixelsTolerance: 0,
-    ignoreBoundaryPixels: false,
-  });
+  try {
+    const result = await compareImagesNode(testImage, {
+      baselineImages: [baselineImage],
+      differenceThreshold: 0.0,
+      radiusTolerance: 0,
+      numberOfPixelsTolerance: 0,
+      ignoreBoundaryPixels: false,
+    });
 
-  // Check if images match
-  const metrics = result.metrics as {
-    almostEqual?: boolean;
-    numberOfPixelsWithDifferences?: number;
-  };
+    // Check if images match
+    const metrics = result.metrics as {
+      almostEqual?: boolean;
+      numberOfPixelsWithDifferences?: number;
+    };
 
-  if (!metrics.almostEqual) {
-    console.error(
-      `❌ ${testName} failed: ${metrics.numberOfPixelsWithDifferences} pixels differ`,
+    if (!metrics.almostEqual) {
+      console.error(
+        `❌ ${testName} failed: ${metrics.numberOfPixelsWithDifferences} pixels differ`,
+      );
+    }
+
+    assertEquals(
+      metrics.almostEqual,
+      true,
+      `Images should match for ${testName}`,
     );
+    assertEquals(
+      metrics.numberOfPixelsWithDifferences,
+      0,
+      `No pixels should differ for ${testName}`,
+    );
+  } catch (error) {
+    console.error(`Error comparing images for ${testName}:`, error);
+    console.error("Test image info:", {
+      size: testImage.size,
+      spacing: testImage.spacing,
+      origin: testImage.origin,
+      dataLength: testImage.data?.length,
+    });
+    console.error("Baseline image info:", {
+      size: baselineImage.size,
+      spacing: baselineImage.spacing,
+      origin: baselineImage.origin,
+      dataLength: baselineImage.data?.length,
+    });
+    throw error;
   }
-
-  assertEquals(
-    metrics.almostEqual,
-    true,
-    `Images should match for ${testName}`,
-  );
-  assertEquals(
-    metrics.numberOfPixelsWithDifferences,
-    0,
-    `No pixels should differ for ${testName}`,
-  );
 }
 
 Deno.test("cthead1 - ITKWASM_GAUSSIAN scale factors [2, 4]", async () => {
