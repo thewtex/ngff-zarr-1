@@ -71,14 +71,38 @@ def from_ngff_zarr(
 
     # RFC-9: Handle .ozx (zipped OME-Zarr) files
     if isinstance(store, (str, Path)) and is_ozx_path(store):
-        # Read version from .ozx comment if not provided
-        if version is None:
-            version = read_ozx_version(store)
+        # Check if it's a remote HTTP URL
+        store_str = str(store)
+        if store_str.startswith(("http://", "https://")):
+            # Use RemoteZipStore for HTTP URLs (requires zarr 3.x)
+            try:
+                print('importing RemoteZipStore for .ozx HTTP access')
+                from .remote_zip_store import RemoteZipStore
+                print('imported RemoteZipStore successfully')
+                import fsspec
+                print(f"zarr_version_major: {zarr_version_major}")
+                if zarr_version_major < 3:
+                    raise ImportError("Remote .ozx files require zarr-python 3.x")
+                print('creating RemoteZipStore instance')
+                store = RemoteZipStore(store_str)
+                # For remote stores, default to 0.5 if version not provided
+                if version is None:
+                    version = "0.5"
+            except ImportError as e:
+                print('e', e)
+                raise ImportError(
+                    f"Remote .ozx file access requires zarr-python 3.x and fsspec[http]. "
+                    f"Install with: pip install 'zarr>=3.0' 'fsspec[http]', 'aiohttp', 'requests'"
+                ) from e
+        else:
+            # Read version from .ozx comment if not provided
             if version is None:
-                version = "0.5"  # Default to 0.5 for .ozx files
-        
-        # For zarr v3, create ZipStore directly with the path
-        store = zarr.storage.ZipStore(str(store), mode='r')
+                version = read_ozx_version(store)
+                if version is None:
+                    version = "0.5"  # Default to 0.5 for .ozx files
+
+            # For zarr v3, create ZipStore directly with the path
+            store = zarr.storage.ZipStore(str(store), mode='r')
 
     # Handle string URLs with storage options (zarr-python 3+ only)
     if isinstance(store, str) and storage_options is not None:

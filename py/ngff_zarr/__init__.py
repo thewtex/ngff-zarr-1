@@ -62,6 +62,7 @@ from .rfc9_zip import (
     read_ozx_version,
     write_store_to_zip,
 )
+from .remote_zip_store import RemoteZipStore
 
 __all__ = [
     "__version__",
@@ -128,4 +129,5 @@ __all__ = [
     "is_ozx_path",
     "read_ozx_version",
     "write_store_to_zip",
+    "RemoteZipStore",
 ]
