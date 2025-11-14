@@ -124,8 +124,10 @@ The expected workflow for writing HCS data is to:
 
 ### Creating Plate Metadata
 
+The plate metadata structure is the same for both v0.4 and v0.5. The version is specified when creating the `Plate` object:
+
 ```python
-from ngff_zarr.v04.zarr_metadata import (
+from ngff_zarr import (
     Plate, PlateColumn, PlateRow, PlateWell, PlateAcquisition
 )
 
@@ -149,16 +151,34 @@ acquisitions = [
     PlateAcquisition(id=1, name="Post-treatment", maximumfieldcount=2),
 ]
 
-# Create plate metadata
-plate_metadata = Plate(
+# Create plate metadata for v0.4 (default)
+plate_metadata_v04 = Plate(
     name="Drug Screening Plate",
     columns=columns,
     rows=rows,
     wells=wells,
     acquisitions=acquisitions,
-    field_count=2  # Number of fields per well
+    field_count=2,  # Number of fields per well
+    version="0.4",  # Use v0.4 format (Zarr v2)
+)
+
+# Create plate metadata for v0.5
+plate_metadata_v05 = Plate(
+    name="Drug Screening Plate",
+    columns=columns,
+    rows=rows,
+    wells=wells,
+    acquisitions=acquisitions,
+    field_count=2,  # Number of fields per well
+    version="0.5",  # Use v0.5 format (Zarr v3)
 )
 ```
+
+**Key Differences Between v0.4 and v0.5:**
+
+- **v0.4**: Uses Zarr format 2, version field included in metadata dicts
+- **v0.5**: Uses Zarr format 3, version at top-level OME wrapper only
+- **Metadata Structure**: v0.5 stores version in `.zattrs["ome"]["version"]` instead of in individual metadata objects
 
 ### Setting Up the Plate Structure
 
@@ -175,44 +195,59 @@ to_hcs_zarr(hcs_plate, "my_screen.ome.zarr")
 
 ### Writing Individual Well Images
 
-After creating the plate structure, use `write_hcs_well_image` to write individual field images as they are acquired:
+After creating the plate structure, use `write_hcs_well_image` to write individual field images as they are acquired. **Important:** Pass the `version` parameter to match your plate version:
 
 ```python
-# Write first field to well A/1
+# Write first field to well A/1 (v0.4 format)
 nz.write_hcs_well_image(
     store="my_screen.ome.zarr",
     multiscales=field_image,  # Your Multiscales image data
-    plate_metadata=plate_metadata,
+    plate_metadata=plate_metadata_v04,
     row_name="A",
     column_name="1",
     field_index=0,  # First field of view
     acquisition_id=0,
+    version="0.4",  # Must match plate version
+)
+
+# Write first field to well A/1 (v0.5 format)
+nz.write_hcs_well_image(
+    store="my_screen_v05.ome.zarr",
+    multiscales=field_image,  # Your Multiscales image data
+    plate_metadata=plate_metadata_v05,
+    row_name="A",
+    column_name="1",
+    field_index=0,  # First field of view
+    acquisition_id=0,
+    version="0.5",  # Must match plate version
 )
 
 # Write second field to the same well
 nz.write_hcs_well_image(
     store="my_screen.ome.zarr",
     multiscales=field_image_2,
-    plate_metadata=plate_metadata,
+    plate_metadata=plate_metadata_v04,
     row_name="A",
     column_name="1",
     field_index=1,  # Second field of view
     acquisition_id=0,
+    version="0.4",
 )
 
 # Write to different well
 nz.write_hcs_well_image(
     store="my_screen.ome.zarr",
     multiscales=field_image_3,
-    plate_metadata=plate_metadata,
+    plate_metadata=plate_metadata_v04,
     row_name="A",
     column_name="2",
     field_index=0,
     acquisition_id=0,
+    version="0.4",
 )
 ```
 
-### Complete Example: Drug Screening Workflow
+### Complete Example: Drug Screening Workflow (v0.4)
 
 ```python
 import ngff_zarr as nz
@@ -293,6 +328,7 @@ for row in ["A", "B", "C"]:  # First 3 rows for demo
                 column_name=col,
                 field_index=field,
                 acquisition_id=0,
+                version="0.4",  # Specify version
             )
 
             print(f"Acquired well {row}/{col}, field {field}")
@@ -303,6 +339,88 @@ print(f"Screening complete! Plate saved to: {plate_store}")
 final_plate = nz.from_hcs_zarr(plate_store)
 print(f"Plate: {final_plate.name}")
 print(f"Wells written: {len([w for w in final_plate.wells if final_plate.get_well(final_plate.rows[w.rowIndex].name, final_plate.columns[w.columnIndex].name) is not None])}")
+```
+
+### Complete Example: v0.5 Drug Screening Workflow
+
+```python
+import ngff_zarr as nz
+import numpy as np
+from ngff_zarr import NgffImage, to_multiscales
+from ngff_zarr.hcs import HCSPlate, to_hcs_zarr
+from ngff_zarr.v04.zarr_metadata import *
+
+# Create plate layout for v0.5
+columns = [PlateColumn(name=str(i)) for i in range(1, 4)]  # 3 columns
+rows = [PlateRow(name=chr(65 + i)) for i in range(2)]      # 2 rows (A-B)
+
+wells = []
+for row_idx, row in enumerate(rows):
+    for col_idx, col in enumerate(columns):
+        wells.append(PlateWell(
+            path=f"{row.name}/{col.name}",
+            rowIndex=row_idx,
+            columnIndex=col_idx
+        ))
+
+plate_metadata = Plate(
+    name="v0.5 Screening Plate",
+    columns=columns,
+    rows=rows,
+    wells=wells,
+    field_count=2,
+    version="0.5",  # Use v0.5 format
+)
+
+# Function to create synthetic field data
+def create_field_image(treatment_effect=1.0):
+    base_intensity = 100
+    data = np.random.poisson(
+        base_intensity * treatment_effect,
+        size=(1, 2, 10, 512, 512)
+    ).astype(np.uint16)
+
+    ngff_image = NgffImage(
+        data=data,
+        dims=["t", "c", "z", "y", "x"],
+        scale={"t": 1.0, "c": 1.0, "z": 0.3, "y": 0.325, "x": 0.325},
+        translation={"t": 0.0, "c": 0.0, "z": 0.0, "y": 0.0, "x": 0.0},
+        name=f"Field_effect_{treatment_effect}",
+    )
+
+    return to_multiscales(ngff_image, scale_factors=[2, 4])
+
+# Create plate structure
+plate_store = "screening_v05.ome.zarr"
+hcs_plate = HCSPlate(store=plate_store, plate_metadata=plate_metadata)
+to_hcs_zarr(hcs_plate, plate_store)
+
+# Write field images with v0.5
+for row in ["A", "B"]:
+    for col in ["1", "2", "3"]:
+        effect = 1.0 if row == "A" else 2.0
+
+        for field in range(2):
+            field_image = create_field_image(effect)
+
+            nz.write_hcs_well_image(
+                store=plate_store,
+                multiscales=field_image,
+                plate_metadata=plate_metadata,
+                row_name=row,
+                column_name=col,
+                field_index=field,
+                acquisition_id=0,
+                version="0.5",  # v0.5 format
+            )
+
+            print(f"Acquired well {row}/{col}, field {field}")
+
+# Read back and verify v0.5 structure
+loaded_plate = nz.from_hcs_zarr(plate_store)
+print(f"Plate version: {loaded_plate.metadata.version}")
+print(f"Plate name: {loaded_plate.name}")
+```
 ```
 
 ### Key Points for HCS Writing
@@ -318,7 +436,8 @@ print(f"Wells written: {len([w for w in final_plate.wells if final_plate.get_wel
 - Then writes individual field images using `write_hcs_well_image`
 - Updates well metadata automatically as fields are added
 - Maintains proper NGFF hierarchical structure
-- Handles both v0.4 and v0.5 formats
+- **v0.4**: Stores version in each metadata dict (`.zattrs["well"]["version"]`)
+- **v0.5**: Stores version only at top-level OME wrapper (`.zattrs["ome"]["version"]`)
 
 **Performance Considerations**:
 - Each field is written as a complete multiscale image
@@ -345,9 +464,9 @@ except ValueError as e:
     print(f"Error: {e}")  # "Row 'Z' not found in plate metadata"
 ```
 
-### Simple Complete Example
+### Simple Complete Example (v0.4)
 
-Here's a minimal working example:
+Here's a minimal working example for v0.4:
 
 ```python
 import ngff_zarr as nz
@@ -367,7 +486,8 @@ wells = [
 
 plate_metadata = Plate(
     columns=columns, rows=rows, wells=wells,
-    name="Example Plate", field_count=1
+    name="Example Plate v0.4", field_count=1,
+    version="0.4"
 )
 
 # Create synthetic image data
@@ -379,30 +499,91 @@ ngff_image = nz.NgffImage(
 )
 multiscales = nz.to_multiscales(ngff_image)
 
-# Write images to each well
 # First create the plate structure
-hcs_plate = HCSPlate(store="my_plate.ome.zarr", plate_metadata=plate_metadata)
-to_hcs_zarr(hcs_plate, "my_plate.ome.zarr")
+hcs_plate = HCSPlate(store="my_plate_v04.ome.zarr", plate_metadata=plate_metadata)
+to_hcs_zarr(hcs_plate, "my_plate_v04.ome.zarr")
 
+# Write images to each well
 for well in wells:
     row_name = rows[well.rowIndex].name
     col_name = columns[well.columnIndex].name
 
     nz.write_hcs_well_image(
-        store="my_plate.ome.zarr",
+        store="my_plate_v04.ome.zarr",
         multiscales=multiscales,
         plate_metadata=plate_metadata,
         row_name=row_name,
         column_name=col_name,
         field_index=0,
+        version="0.4",
     )
 
 # Verify the result
-plate = nz.from_hcs_zarr("my_plate.ome.zarr")
-print(f"Created plate with {len(plate.wells)} wells")
+plate = nz.from_hcs_zarr("my_plate_v04.ome.zarr")
+print(f"Created v0.4 plate with {len(plate.wells)} wells")
 ```
 
-This approach allows you to write individual well images as they are acquired during HCS experiments, making it ideal for real-time acquisition workflows.
+### Simple Complete Example (v0.5)
+
+Here's a minimal working example for v0.5:
+
+```python
+import ngff_zarr as nz
+import numpy as np
+from ngff_zarr.hcs import HCSPlate, to_hcs_zarr
+from ngff_zarr.v04.zarr_metadata import *
+
+# Create plate layout
+columns = [PlateColumn(name="1"), PlateColumn(name="2")]
+rows = [PlateRow(name="A"), PlateRow(name="B")]
+wells = [
+    PlateWell(path="A/1", rowIndex=0, columnIndex=0),
+    PlateWell(path="A/2", rowIndex=0, columnIndex=1),
+    PlateWell(path="B/1", rowIndex=1, columnIndex=0),
+    PlateWell(path="B/2", rowIndex=1, columnIndex=1),
+]
+
+plate_metadata = Plate(
+    columns=columns, rows=rows, wells=wells,
+    name="Example Plate v0.5", field_count=1,
+    version="0.5"  # Use v0.5
+)
+
+# Create synthetic image data
+data = np.random.randint(0, 255, size=(1, 1, 10, 256, 256), dtype=np.uint8)
+ngff_image = nz.NgffImage(
+    data=data, dims=["t", "c", "z", "y", "x"],
+    scale={"t": 1.0, "c": 1.0, "z": 0.5, "y": 0.325, "x": 0.325},
+    translation={"t": 0.0, "c": 0.0, "z": 0.0, "y": 0.0, "x": 0.0}
+)
+multiscales = nz.to_multiscales(ngff_image)
+
+# First create the plate structure
+hcs_plate = HCSPlate(store="my_plate_v05.ome.zarr", plate_metadata=plate_metadata)
+to_hcs_zarr(hcs_plate, "my_plate_v05.ome.zarr")
+
+# Write images to each well
+for well in wells:
+    row_name = rows[well.rowIndex].name
+    col_name = columns[well.columnIndex].name
+
+    nz.write_hcs_well_image(
+        store="my_plate_v05.ome.zarr",
+        multiscales=multiscales,
+        plate_metadata=plate_metadata,
+        row_name=row_name,
+        column_name=col_name,
+        field_index=0,
+        version="0.5",  # Specify v0.5
+    )
+
+# Verify the result
+plate = nz.from_hcs_zarr("my_plate_v05.ome.zarr")
+print(f"Created v0.5 plate with {len(plate.wells)} wells")
+print(f"Version: {plate.metadata.version}")
+```
+
+These approaches allow you to write individual well images as they are acquired during HCS experiments, making them ideal for real-time acquisition workflows.
 
 ### Creating Plate Metadata
 

@@ -5,8 +5,11 @@
 import pytest
 import tempfile
 from pathlib import Path
+from packaging import version
 
 import zarr
+
+zarr_version = version.parse(zarr.__version__)
 
 from ngff_zarr.hcs import from_hcs_zarr, to_hcs_zarr, HCSPlate, HCSWell
 from ngff_zarr.v04.zarr_metadata import (
@@ -327,6 +330,7 @@ def test_hcs_image_axes_and_dims(hcs_data_path):
     assert len(ngff_image.data.shape) == 5
 
 
+@pytest.mark.skipif(zarr_version < version.parse("3"), reason="zarr version < 3")
 def test_write_hcs_v05_complete():
     """Test complete HCS v0.5 writing workflow with plates, wells, and images."""
     import numpy as np
@@ -456,6 +460,7 @@ def test_write_hcs_v05_complete():
         assert len(loaded_image.images) >= 1
 
 
+@pytest.mark.skipif(zarr_version < version.parse("3"), reason="zarr version < 3")
 def test_write_hcs_v05_vs_v04_metadata_structure():
     """Test that v0.5 and v0.4 have correct metadata structure differences."""
     import numpy as np
