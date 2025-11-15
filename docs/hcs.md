@@ -195,9 +195,15 @@ to_hcs_zarr(hcs_plate, "my_screen.ome.zarr")
 
 ### Writing Individual Well Images
 
-After creating the plate structure, use `write_hcs_well_image` to write individual field images as they are acquired. **Important:** Pass the `version` parameter to match your plate version:
+After creating the plate structure, use `write_hcs_well_image` to write individual field images as they are acquired. **Important:** Pass the `version` parameter to match your plate version.
+
+**Critical:** All wells in a plate must use the same OME-Zarr version (0.4 or 0.5). Mixing versions within a single plate is not supported.
 
 ```python
+# IMPORTANT: The plate and all wells must use the same version
+# Define the version once to ensure consistency
+ome_zarr_version = "0.4"  # or "0.5"
+
 # Write first field to well A/1 (v0.4 format)
 nz.write_hcs_well_image(
     store="my_screen.ome.zarr",
@@ -207,19 +213,7 @@ nz.write_hcs_well_image(
     column_name="1",
     field_index=0,  # First field of view
     acquisition_id=0,
-    version="0.4",  # Must match plate version
-)
-
-# Write first field to well A/1 (v0.5 format)
-nz.write_hcs_well_image(
-    store="my_screen_v05.ome.zarr",
-    multiscales=field_image,  # Your Multiscales image data
-    plate_metadata=plate_metadata_v05,
-    row_name="A",
-    column_name="1",
-    field_index=0,  # First field of view
-    acquisition_id=0,
-    version="0.5",  # Must match plate version
+    version=ome_zarr_version,  # Must match plate version
 )
 
 # Write second field to the same well
@@ -231,7 +225,7 @@ nz.write_hcs_well_image(
     column_name="1",
     field_index=1,  # Second field of view
     acquisition_id=0,
-    version="0.4",
+    version=ome_zarr_version,  # Use same version
 )
 
 # Write to different well
@@ -243,7 +237,26 @@ nz.write_hcs_well_image(
     column_name="2",
     field_index=0,
     acquisition_id=0,
-    version="0.4",
+    version=ome_zarr_version,  # Use same version
+)
+```
+
+Example for v0.5:
+
+```python
+# IMPORTANT: The plate and all wells must use the same version
+ome_zarr_version = "0.5"
+
+# Write first field to well A/1 (v0.5 format)
+nz.write_hcs_well_image(
+    store="my_screen_v05.ome.zarr",
+    multiscales=field_image,  # Your Multiscales image data
+    plate_metadata=plate_metadata_v05,
+    row_name="A",
+    column_name="1",
+    field_index=0,  # First field of view
+    acquisition_id=0,
+    version=ome_zarr_version,  # Must match plate version
 )
 ```
 
@@ -255,6 +268,9 @@ import numpy as np
 from ngff_zarr import NgffImage, to_multiscales
 from ngff_zarr.hcs import HCSPlate, to_hcs_zarr
 from ngff_zarr.v04.zarr_metadata import *
+
+# IMPORTANT: Define version once - all plate and well operations must use the same version
+ome_zarr_version = "0.4"
 
 # Create plate layout for a 96-well plate (subset)
 columns = [PlateColumn(name=str(i)) for i in range(1, 13)]  # 12 columns
@@ -275,7 +291,7 @@ plate_metadata = Plate(
     rows=rows,
     wells=wells,
     field_count=4,  # 4 fields per well
-    version="0.4"
+    version=ome_zarr_version  # Use consistent version
 )
 
 # Function to create synthetic field data
@@ -328,7 +344,7 @@ for row in ["A", "B", "C"]:  # First 3 rows for demo
                 column_name=col,
                 field_index=field,
                 acquisition_id=0,
-                version="0.4",  # Specify version
+                version=ome_zarr_version,  # Must match plate version
             )
 
             print(f"Acquired well {row}/{col}, field {field}")
@@ -350,6 +366,9 @@ from ngff_zarr import NgffImage, to_multiscales
 from ngff_zarr.hcs import HCSPlate, to_hcs_zarr
 from ngff_zarr.v04.zarr_metadata import *
 
+# IMPORTANT: Define version once - all plate and well operations must use the same version
+ome_zarr_version = "0.5"
+
 # Create plate layout for v0.5
 columns = [PlateColumn(name=str(i)) for i in range(1, 4)]  # 3 columns
 rows = [PlateRow(name=chr(65 + i)) for i in range(2)]      # 2 rows (A-B)
@@ -369,7 +388,7 @@ plate_metadata = Plate(
     rows=rows,
     wells=wells,
     field_count=2,
-    version="0.5",  # Use v0.5 format
+    version=ome_zarr_version,  # Use consistent version
 )
 
 # Function to create synthetic field data
@@ -411,7 +430,7 @@ for row in ["A", "B"]:
                 column_name=col,
                 field_index=field,
                 acquisition_id=0,
-                version="0.5",  # v0.5 format
+                version=ome_zarr_version,  # Must match plate version
             )
 
             print(f"Acquired well {row}/{col}, field {field}")
@@ -474,6 +493,9 @@ import numpy as np
 from ngff_zarr.hcs import HCSPlate, to_hcs_zarr
 from ngff_zarr.v04.zarr_metadata import *
 
+# IMPORTANT: Define version once - all plate and well operations must use the same version
+ome_zarr_version = "0.4"
+
 # Create plate layout
 columns = [PlateColumn(name="1"), PlateColumn(name="2")]
 rows = [PlateRow(name="A"), PlateRow(name="B")]
@@ -487,7 +509,7 @@ wells = [
 plate_metadata = Plate(
     columns=columns, rows=rows, wells=wells,
     name="Example Plate v0.4", field_count=1,
-    version="0.4"
+    version=ome_zarr_version
 )
 
 # Create synthetic image data
@@ -503,7 +525,7 @@ multiscales = nz.to_multiscales(ngff_image)
 hcs_plate = HCSPlate(store="my_plate_v04.ome.zarr", plate_metadata=plate_metadata)
 to_hcs_zarr(hcs_plate, "my_plate_v04.ome.zarr")
 
-# Write images to each well
+# Write images to each well (all must use same version as plate)
 for well in wells:
     row_name = rows[well.rowIndex].name
     col_name = columns[well.columnIndex].name
@@ -515,7 +537,7 @@ for well in wells:
         row_name=row_name,
         column_name=col_name,
         field_index=0,
-        version="0.4",
+        version=ome_zarr_version,  # Must match plate version
     )
 
 # Verify the result
@@ -533,6 +555,9 @@ import numpy as np
 from ngff_zarr.hcs import HCSPlate, to_hcs_zarr
 from ngff_zarr.v04.zarr_metadata import *
 
+# IMPORTANT: Define version once - all plate and well operations must use the same version
+ome_zarr_version = "0.5"
+
 # Create plate layout
 columns = [PlateColumn(name="1"), PlateColumn(name="2")]
 rows = [PlateRow(name="A"), PlateRow(name="B")]
@@ -546,7 +571,7 @@ wells = [
 plate_metadata = Plate(
     columns=columns, rows=rows, wells=wells,
     name="Example Plate v0.5", field_count=1,
-    version="0.5"  # Use v0.5
+    version=ome_zarr_version
 )
 
 # Create synthetic image data
@@ -562,7 +587,7 @@ multiscales = nz.to_multiscales(ngff_image)
 hcs_plate = HCSPlate(store="my_plate_v05.ome.zarr", plate_metadata=plate_metadata)
 to_hcs_zarr(hcs_plate, "my_plate_v05.ome.zarr")
 
-# Write images to each well
+# Write images to each well (all must use same version as plate)
 for well in wells:
     row_name = rows[well.rowIndex].name
     col_name = columns[well.columnIndex].name
@@ -574,7 +599,7 @@ for well in wells:
         row_name=row_name,
         column_name=col_name,
         field_index=0,
-        version="0.5",  # Specify v0.5
+        version=ome_zarr_version,  # Must match plate version
     )
 
 # Verify the result
