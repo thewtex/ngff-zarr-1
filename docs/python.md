@@ -169,6 +169,59 @@ To read an OME-Zarr file, use [`from_ngff_zarr`], which returns the
 
 OME-Zarr version 0.1 to 0.5 is supported.
 
+## Read OME-Zarr Zip (.ozx) files
+
+[RFC-9](https://ngff.openmicroscopy.org/rfc/9/index.html) introduces support for OME-Zarr Zip (.ozx) files, which package an entire OME-Zarr hierarchy into a single ZIP archive. This format provides several benefits:
+
+- **Single-file distribution**: Share complete multiscale datasets as one portable file
+- **Version metadata**: OME-Zarr version embedded in ZIP comment for automatic detection
+
+### Reading local .ozx files
+
+```python
+>>> multiscales = nz.from_ngff_zarr('cthead1.ozx')
+```
+
+The `.ozx` extension is automatically detected and handled appropriately.
+
+### Writing .ozx files
+
+To write an OME-Zarr dataset as a `.ozx` file, simply use the `.ozx` extension:
+
+```python
+>>> nz.to_ngff_zarr('cthead1.ozx', multiscales)
+```
+
+All RFC-9 recommendations are followed. By default, `.ozx` files are written using OME-Zarr version 0.5 (Zarr v3 format), which is recommended for the ZIP-based format.
+The OME-Zarr version is automatically embedded in the ZIP file comment for proper detection when reading.
+
+### Converting existing OME-Zarr stores to .ozx
+
+You can easily convert an existing OME-Zarr directory store to a portable `.ozx` file:
+
+```python
+>>> # Read from directory store
+>>> multiscales = nz.from_ngff_zarr('cthead1.ome.zarr')
+>>>
+>>> # Write as .ozx file
+>>> nz.to_ngff_zarr('cthead1.ozx', multiscales)
+```
+
+This creates a single-file archive containing the entire multiscale pyramid, making it easy to share or distribute datasets.
+
+For direct store-to-ZIP conversion without reprocessing the data, use `write_store_to_zip`:
+
+```python
+>>> from ngff_zarr.rfc9_zip import write_store_to_zip
+>>> from zarr.storage import LocalStore
+>>>
+>>> # Direct conversion of existing store to .ozx
+>>> source_store = LocalStore('cthead1.ome.zarr')
+>>> write_store_to_zip(source_store, 'cthead1.ozx', version='0.5')
+```
+
+This is more efficient for large datasets as it copies the store contents directly without recomputing arrays.
+
 ## Validate OME-Zarr metadata
 
 To validate that an OME-Zarr's metadata following the specification's data
