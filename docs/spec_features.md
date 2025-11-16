@@ -59,3 +59,17 @@ implementation details.
   allowing for scalable data management.
 - **RFC-4**: [Anatomical orientation support](./rfc4.md), allowing images to
   include metadata about their anatomical orientation.
+- **RFC-9**: [OME-Zarr Zip (.ozx) format support](https://ngff.openmicroscopy.org/rfc/9/index.html),
+  enabling single-file distribution of OME-Zarr datasets.
+
+## OME-Zarr Zip Format (.ozx)
+
+[RFC-9](https://ngff.openmicroscopy.org/rfc/9/index.html) defines the OME-Zarr Zip (.ozx) format, which packages complete OME-Zarr hierarchies into single ZIP archives. Key features include:
+
+- **Portable Distribution**: Share entire multiscale datasets as single files
+- **Version Detection**: OME-Zarr version stored in ZIP file comment for automatic format detection
+- **Lazy Remote Access**: Efficient HTTP byte-range requests for remote .ozx files
+- **Compression**: Individual files compressed within the ZIP archive
+- **Standard Format**: Based on standard ZIP file format for broad compatibility
+
+All required and recommended RFC-9 practices are implemented in ngff-zarr.

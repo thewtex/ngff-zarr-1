@@ -282,6 +282,10 @@ def main():
         if any(output_path == inp for inp in input_paths):
             parser.error("Input and output file/directory must not be the same.")
 
+        # Set default OME-Zarr version to 0.5 for .ozx output files
+        if args.output.endswith('.ozx') and args.ome_zarr_version == '0.4':
+            args.ome_zarr_version = '0.5'
+
     if args.memory_target:
         config.memory_target = dask.utils.parse_bytes(args.memory_target)
 
@@ -400,8 +404,8 @@ def main():
             return
 
         if input_backend is ConversionBackend.NGFF_ZARR:
-            store = LocalStore(args.input[0])
-            multiscales = from_ngff_zarr(store)
+            # Pass the path directly to from_ngff_zarr to let it handle .ozx files
+            multiscales = from_ngff_zarr(args.input[0])
             _multiscales_to_ngff_zarr(
                 live,
                 args,

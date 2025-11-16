@@ -30,6 +30,7 @@ A lean and kind
 - [Sharded Zarr] stores
 - Optional writing via zarr-python 2, zarr-python 3, [tensorstore] or zarrita (TypeScript)
 - [Anatomical orientation metadata](./rfc4.md) (RFC-4)
+- **OME-Zarr Zip (.ozx) file support** for single-file OME-Zarr datasets (RFC-9)
 - **High Content Screening (HCS) support** for plate and well data
 - **Model Context Protocol (MCP) server** for AI agent integration
 
