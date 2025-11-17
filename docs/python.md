@@ -169,7 +169,7 @@ To read an OME-Zarr file, use [`from_ngff_zarr`], which returns the
 
 OME-Zarr version 0.1 to 0.5 is supported.
 
-## Read OME-Zarr Zip (.ozx) files
+## OME-Zarr Zip (.ozx) files
 
 [RFC-9](https://ngff.openmicroscopy.org/rfc/9/index.html) introduces support for OME-Zarr Zip (.ozx) files, which package an entire OME-Zarr hierarchy into a single ZIP archive. This format provides several benefits:
 
