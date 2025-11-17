@@ -75,7 +75,7 @@ ngff-zarr --memory-target 50M -i ./LIDCFull.vtk -o ./LIDCFull.ome.zarr
 
 ![ngff-zarr memory-target](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZmQ2NzVmMzU0NDA5ZDcyNzczNTU3MWE2YjczZjY5YmJkNWE4OTRhZSZjdD1n/ODobGeUYQr9wrE9J2s/giphy.gif)
 
-### Read OME-Zarr Zip (.ozx) files
+### OME-Zarr Zip (.ozx) files
 
 [RFC-9](https://ngff.openmicroscopy.org/rfc/9/index.html) introduces support for OME-Zarr Zip (.ozx) files, which package an entire OME-Zarr hierarchy into a single ZIP archive. This format enables:
 
