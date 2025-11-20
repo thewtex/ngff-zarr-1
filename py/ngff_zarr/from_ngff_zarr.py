@@ -76,7 +76,7 @@ def from_ngff_zarr(
             version = read_ozx_version(store)
             if version is None:
                 version = "0.5"  # Default to 0.5 for .ozx files
-        
+
         # For zarr v3, create ZipStore directly with the path
         store = zarr.storage.ZipStore(str(store), mode='r')
 

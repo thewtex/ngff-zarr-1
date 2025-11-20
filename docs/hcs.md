@@ -199,6 +199,122 @@ After creating the plate structure, use `write_hcs_well_image` to write individu
 
 **Critical:** All wells in a plate must use the same OME-Zarr version (0.4 or 0.5). Mixing versions within a single plate is not supported.
 
+### RFC-9 Zipped OME-Zarr (.ozx) Support
+
+HCS plates can be written to RFC-9 compliant zipped OME-Zarr (`.ozx`) format by simply using an `.ozx` file extension. This format is ideal for sharing and archiving HCS datasets as a single file.
+
+**Requirements:**
+- OME-Zarr version 0.5 (required for RFC-9)
+- Zarr-python >= 3.0.0
+
+#### Using HCSPlateWriter for Efficient .ozx Writing
+
+For writing multiple wells to `.ozx` format (or for parallel writing to any format), use the `HCSPlateWriter` context manager. This defers `.ozx` file creation until all wells are written, making it much more efficient than writing wells individually.
+
+```python
+import ngff_zarr as nz
+from ngff_zarr.hcs import HCSPlateWriter
+
+# Create plate metadata with version 0.5 (required for .ozx)
+plate_metadata = nz.Plate(
+    name="Drug Screening Plate",
+    columns=columns,
+    rows=rows,
+    wells=wells,
+    field_count=2,
+    version="0.5",  # Required for .ozx
+)
+
+# Use context manager to write multiple wells efficiently
+with HCSPlateWriter("my_screen.ozx", plate_metadata) as writer:
+    for well_data in acquisition_data:
+        writer.write_well_image(
+            multiscales=well_data.image,
+            row_name=well_data.row,
+            column_name=well_data.col,
+            field_index=well_data.field,
+        )
+# .ozx file is created automatically when exiting the context
+```
+
+**Benefits of HCSPlateWriter:**
+- **Efficient .ozx creation**: Single ZIP operation instead of re-zipping after each well
+- **Parallel writing support**: Thread-safe for concurrent well writes
+- **Memory efficient**: Handles large plates without loading everything into memory
+- **Automatic cleanup**: Temporary files are cleaned up automatically
+
+#### Parallel Writing Example
+
+```python
+from concurrent.futures import ThreadPoolExecutor
+
+def write_well(writer, well_data):
+    writer.write_well_image(
+        multiscales=well_data.image,
+        row_name=well_data.row,
+        column_name=well_data.col,
+        field_index=well_data.field,
+    )
+
+with HCSPlateWriter("plate.ozx", plate_metadata) as writer:
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        executor.map(lambda wd: write_well(writer, wd), well_data_list)
+```
+
+#### Single-Well .ozx Writing (Simple API)
+
+For writing a single well or a few wells, you can still use `write_hcs_well_image` directly, but note that each call will recreate the entire `.ozx` file:
+
+```python
+# Less efficient for multiple wells - creates .ozx after each write
+nz.write_hcs_well_image(
+    store="my_screen.ozx",
+    multiscales=field_image,
+    plate_metadata=plate_metadata,
+    row_name="A",
+    column_name="1",
+    field_index=0,
+    version="0.5",  # Must be 0.5 for .ozx
+)
+```
+
+#### Reading .ozx Files
+
+The resulting `.ozx` file is a standard ZIP archive containing the entire HCS plate structure and can be read using `from_hcs_zarr`:
+
+```python
+# Read .ozx file - works the same as regular .ome.zarr
+plate = nz.from_hcs_zarr("my_screen.ozx")
+well = plate.get_well("A", "1")
+image = well.get_image(0)
+```
+
+**Note:** `.ozx` files automatically use sharding (chunks_per_shard=2 by default) for efficient compression and access.
+
+#### Converting Existing Plates to .ozx
+
+If you've already written an HCS plate to a regular `.ome.zarr` directory, you can convert it to `.ozx` format using `write_store_to_zip`:
+
+```python
+from ngff_zarr import write_store_to_zip
+
+# Convert an existing plate to .ozx
+write_store_to_zip(
+    "existing_plate.ome.zarr",  # Source plate directory
+    "plate.ozx",                 # Output .ozx file
+    version="0.5"                # Required for .ozx
+)
+```
+
+This is useful for:
+- **Archiving**: Convert large plates to single-file archives
+- **Sharing**: Package complete plates for easy distribution
+- **Storage optimization**: Benefit from ZIP compression
+
+The conversion preserves all plate structure, well data, and metadata. The resulting `.ozx` file can be read using `from_hcs_zarr` just like any other HCS plate.
+
+### Standard Writing Examples
+
 ```python
 # IMPORTANT: The plate and all wells must use the same version
 # Define the version once to ensure consistency

@@ -36,6 +36,7 @@ from .v04.zarr_metadata import (
 from .multiscales import Multiscales
 from .from_ngff_zarr import from_ngff_zarr
 from .to_ngff_zarr import to_ngff_zarr
+from .rfc9_zip import is_ozx_path, write_store_to_zip
 
 
 class LRUCache:
@@ -285,21 +286,30 @@ class HCSWell:
 
         # Cache images to avoid reloading
         if image_path not in self._images:
-            # Build the full path for the image within the original store
-            if isinstance(self.store, (str, Path)):
+            # For ZipStore (e.g., .ozx files), we need to access via subpath in the store
+            if hasattr(zarr.storage, "ZipStore") and isinstance(self.store, zarr.storage.ZipStore):
+                # For zarr v3, use StorePath to navigate to subpaths within the zip
+                from zarr.storage import StorePath
+                store_path = StorePath(self.store, path=image_path)
+                self._images[image_path] = from_ngff_zarr(store_path)
+            elif isinstance(self.store, (str, Path)):
                 # If store is a path string, append the image path
                 full_image_path = Path(self.store) / self.path / image_meta.path
                 self._images[image_path] = from_ngff_zarr(str(full_image_path))
             else:
-                # For other store types, we need to access the subgroup differently
-                # Since from_ngff_zarr expects a store-like object, we need to create
-                # a store that points to the right subpath
-                if hasattr(self.store, "path"):
-                    base_path = self.store.path
-                else:
-                    base_path = str(self.store)
-                full_image_path = Path(base_path) / self.path / image_meta.path
-                self._images[image_path] = from_ngff_zarr(str(full_image_path))
+                # For other store types, try StorePath approach
+                try:
+                    from zarr.storage import StorePath
+                    store_path = StorePath(self.store, path=image_path)
+                    self._images[image_path] = from_ngff_zarr(store_path)
+                except (ImportError, Exception):
+                    # Fallback: try to convert to path
+                    if hasattr(self.store, "path"):
+                        base_path = self.store.path
+                    else:
+                        base_path = str(self.store)
+                    full_image_path = Path(base_path) / self.path / image_meta.path
+                    self._images[image_path] = from_ngff_zarr(str(full_image_path))
 
         return self._images[image_path]
 
@@ -334,7 +344,7 @@ def from_hcs_zarr(
     Parameters
     ----------
     store
-        Store or path to directory in file system.
+        Store or path to directory in file system. Can be a .ozx file.
     validate : bool
         If True, validate the NGFF metadata against the schema.
     well_cache_size : int, optional
@@ -347,6 +357,12 @@ def from_hcs_zarr(
     plate : HCSPlate
         The loaded HCS plate with wells and images.
     """
+    from .rfc9_zip import is_ozx_path
+
+    # RFC-9: Handle .ozx (zipped OME-Zarr) files
+    if isinstance(store, (str, Path)) and is_ozx_path(store):
+        # For zarr v3, create ZipStore directly with the path
+        store = zarr.storage.ZipStore(str(store), mode='r')
 
     root = zarr.open_group(store, mode="r")
     root_attrs = root.attrs.asdict()
@@ -550,6 +566,187 @@ def to_hcs_zarr(plate: HCSPlate, store) -> None:
         logging.info(f"Acquisitions: {len(plate.metadata.acquisitions)}")
 
 
+class HCSPlateWriter:
+    """
+    Context manager for writing HCS plates with deferred .ozx zipping.
+
+    This class enables efficient writing of multiple well images by:
+    - Deferring .ozx file creation until all wells are written
+    - Supporting parallel writes to the same plate
+    - Avoiding repeated zipping operations for each well
+
+    For .ozx files, this approach writes to a temporary zarr store and only
+    creates the final .ozx ZIP archive when exiting the context manager.
+    For regular .ome.zarr directories, it writes directly to the target.
+
+    Parameters
+    ----------
+    store : str or Path
+        Target store path. Can be .ozx, .ome.zarr, or .zarr extension.
+    plate_metadata : Plate
+        Plate-level metadata containing rows, columns, wells, and other plate information.
+    version : str, optional
+        OME-Zarr specification version (default: "0.5"). Note: .ozx format requires version 0.5.
+    overwrite : bool, optional
+        If True, overwrite existing store (default: True).
+
+    Examples
+    --------
+    Writing multiple wells efficiently to .ozx format:
+
+    >>> import ngff_zarr as nz
+    >>> from ngff_zarr.hcs import HCSPlateWriter
+    >>> from ngff_zarr.v04.zarr_metadata import Plate, PlateColumn, PlateRow, PlateWell
+    >>>
+    >>> # Create plate metadata
+    >>> plate_metadata = nz.Plate(
+    ...     columns=[nz.PlateColumn(name="1"), nz.PlateColumn(name="2")],
+    ...     rows=[nz.PlateRow(name="A"), nz.PlateRow(name="B")],
+    ...     wells=[
+    ...         nz.PlateWell(path="A/1", rowIndex=0, columnIndex=0),
+    ...         nz.PlateWell(path="A/2", rowIndex=0, columnIndex=1),
+    ...     ],
+    ...     version="0.5",
+    ... )
+    >>>
+    >>> # Use context manager to write multiple wells
+    >>> with HCSPlateWriter("my_plate.ozx", plate_metadata) as writer:
+    ...     for well_data in acquisition_data:
+    ...         writer.write_well_image(
+    ...             multiscales=well_data.image,
+    ...             row_name=well_data.row,
+    ...             column_name=well_data.col,
+    ...             field_index=well_data.field,
+    ...         )
+    >>> # .ozx file is created when exiting the context
+
+    Parallel writing example:
+
+    >>> from concurrent.futures import ThreadPoolExecutor
+    >>>
+    >>> def write_well(writer, well_data):
+    ...     writer.write_well_image(
+    ...         multiscales=well_data.image,
+    ...         row_name=well_data.row,
+    ...         column_name=well_data.col,
+    ...         field_index=well_data.field,
+    ...     )
+    >>>
+    >>> with HCSPlateWriter("plate.ozx", plate_metadata) as writer:
+    ...     with ThreadPoolExecutor(max_workers=4) as executor:
+    ...         executor.map(lambda wd: write_well(writer, wd), well_data_list)
+    """
+
+    def __init__(
+        self,
+        store,
+        plate_metadata: Plate,
+        version: str = "0.5",
+        overwrite: bool = True,
+    ):
+        self.final_store = store
+        self.plate_metadata = plate_metadata
+        self.version = version
+        self.overwrite = overwrite
+        self.is_ozx = isinstance(store, (str, Path)) and is_ozx_path(store)
+        self._temp_store = None
+        self._temp_dir = None
+
+        if self.is_ozx and version != "0.5":
+            raise ValueError(
+                "RFC-9 zipped OME-Zarr (.ozx) requires OME-Zarr version 0.5. "
+                f"Got version '{version}'. Please set version='0.5'."
+            )
+
+    def __enter__(self):
+        """Initialize the plate structure and return the writer."""
+        if self.is_ozx:
+            # For .ozx files, create a temporary zarr store
+            import tempfile
+
+            # Use LocalStore (zarr v3) or DirectoryStore (zarr v2)
+            if hasattr(zarr.storage, "DirectoryStore"):
+                LocalStore = zarr.storage.DirectoryStore
+            else:
+                LocalStore = zarr.storage.LocalStore
+
+            self._temp_dir = tempfile.mkdtemp()
+            # LocalStore takes the directory path directly, not a subdirectory
+            self._temp_store = LocalStore(self._temp_dir)
+            working_store = self._temp_store
+        else:
+            # For regular stores, use the target store directly
+            working_store = self.final_store
+
+        # Create the plate structure
+        hcs_plate = HCSPlate(store=working_store, plate_metadata=self.plate_metadata)
+        to_hcs_zarr(hcs_plate, working_store)
+
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Finalize the plate by creating .ozx if needed and cleaning up."""
+        try:
+            if exc_type is None and self.is_ozx:
+                # Only create .ozx if no exception occurred
+                write_store_to_zip(self._temp_store, self.final_store, version=self.version)
+                logging.info(f"Created HCS plate in .ozx format: {self.final_store}")
+        finally:
+            # Clean up temporary directory
+            if self._temp_dir is not None:
+                import shutil
+                shutil.rmtree(self._temp_dir, ignore_errors=True)
+
+        return False  # Don't suppress exceptions
+
+    def write_well_image(
+        self,
+        multiscales: Multiscales,
+        row_name: str,
+        column_name: str,
+        field_index: int = 0,
+        acquisition_id: int = 0,
+        well_metadata: Optional[Well] = None,
+        **kwargs,
+    ) -> None:
+        """
+        Write a single field of view (image) to a well.
+
+        Parameters
+        ----------
+        multiscales : Multiscales
+            Multiscales OME-NGFF image pixel data and metadata for the field of view.
+        row_name : str
+            Name of the row (e.g., "A", "B", "C").
+        column_name : str
+            Name of the column (e.g., "1", "2", "3").
+        field_index : int, optional
+            Index of the field of view within the well (default: 0).
+        acquisition_id : int, optional
+            Acquisition ID for time series or multi-condition experiments (default: 0).
+        well_metadata : Well, optional
+            Well-level metadata. If None, will be created automatically.
+        **kwargs
+            Additional arguments passed to to_ngff_zarr.
+        """
+        # Determine which store to write to
+        working_store = self._temp_store if self.is_ozx else self.final_store
+
+        # Use the internal write function
+        write_hcs_well_image(
+            store=working_store,
+            multiscales=multiscales,
+            plate_metadata=self.plate_metadata,
+            row_name=row_name,
+            column_name=column_name,
+            field_index=field_index,
+            acquisition_id=acquisition_id,
+            well_metadata=well_metadata,
+            version=self.version,
+            **kwargs,
+        )
+
+
 def write_hcs_well_image(
     store,
     multiscales: Multiscales,
@@ -627,6 +824,12 @@ def write_hcs_well_image(
     ...     column_name="1",
     ...     field_index=0
     ... )
+
+    Notes
+    -----
+    For writing multiple wells to .ozx format efficiently, or for parallel writing,
+    use the HCSPlateWriter context manager instead of calling this function directly.
+    The context manager defers .ozx file creation until all wells are written.
     """
     # Validate row and column exist in plate metadata
     row_index = None
@@ -675,13 +878,13 @@ def write_hcs_well_image(
         if well_metadata is None:
             existing_well_attrs = None
             well_group_attrs = well_group.attrs.asdict()
-            
+
             # Check for v0.5 format (ome wrapper) or v0.4 format (direct well)
             if "ome" in well_group_attrs and "well" in well_group_attrs["ome"]:
                 existing_well_attrs = well_group_attrs["ome"]["well"]
             elif "well" in well_group_attrs:
                 existing_well_attrs = well_group_attrs["well"]
-            
+
             if existing_well_attrs is not None:
                 existing_images = []
                 if "images" in existing_well_attrs:

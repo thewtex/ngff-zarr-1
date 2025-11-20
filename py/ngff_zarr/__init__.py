@@ -20,7 +20,7 @@ from .to_multiscales import to_multiscales
 from .to_ngff_image import to_ngff_image
 from .to_ngff_zarr import to_ngff_zarr
 from .validate import validate
-from .hcs import from_hcs_zarr, to_hcs_zarr, write_hcs_well_image, HCSPlate, HCSWell
+from .hcs import from_hcs_zarr, to_hcs_zarr, write_hcs_well_image, HCSPlate, HCSWell, HCSPlateWriter
 from .v04.zarr_metadata import (
     AxesType,
     SpatialDims,
@@ -115,6 +115,7 @@ __all__ = [
     "write_hcs_well_image",
     "HCSPlate",
     "HCSWell",
+    "HCSPlateWriter",
     # RFC 4 - Anatomical Orientation
     "AnatomicalOrientation",
     "AnatomicalOrientationValues",
