@@ -12,12 +12,12 @@ from ._support import (
     _align_chunks,
     _compute_sigma,
     _dim_scale_factors,
-    _update_previous_dim_factors,
     _get_block,
     _spatial_dims,
     _spatial_dims_last_zyx,
     _next_scale_metadata,
     _next_block_shape,
+    _update_previous_dim_factors,
 )
 
 _image_dims: Tuple[str, str, str, str] = ("x", "y", "z", "t")
@@ -93,50 +93,82 @@ def _downsample_itkwasm(
     multiscales = [
         ngff_image,
     ]
-    previous_image = ngff_image
     dims = tuple(ngff_image.dims)
-    previous_dim_factors = {d: 1 for d in dims}
     spatial_dims = [dim for dim in dims if dim in _spatial_dims]
     spatial_dims = _image_dims[: len(spatial_dims)]
     transposed_dims = False
+
+    # Track previous image for incremental downsampling
+    previous_image = ngff_image
+    previous_dim_factors = {d: 1 for d in dims}
+
     for scale_factor in scale_factors:
-        dim_factors = _dim_scale_factors(dims, scale_factor, previous_dim_factors)
-        previous_dim_factors = _update_previous_dim_factors(
-            scale_factor, spatial_dims, previous_dim_factors
+        # Calculate incremental factors to achieve exact target size
+        dim_factors = _dim_scale_factors(
+            dims, scale_factor, previous_dim_factors,
+            original_image=ngff_image, previous_image=previous_image
         )
-        previous_image = _align_chunks(previous_image, default_chunks, dim_factors)
+
+        # Check if we can achieve exact target with incremental downsampling
+        # If not, downsample from original instead
+        can_downsample_incrementally = True
+        for dim in dim_factors:
+            if dim in _spatial_dims:
+                dim_index = ngff_image.dims.index(dim)
+                original_size = ngff_image.data.shape[dim_index]
+                # Handle both int and dict scale_factor
+                dim_scale_factor = scale_factor[dim] if isinstance(scale_factor, dict) else scale_factor
+                target_size = int(original_size / dim_scale_factor)
+
+                prev_dim_index = previous_image.dims.index(dim)
+                previous_size = previous_image.data.shape[prev_dim_index]
+
+                # Check if floor(previous_size / dim_factors[dim]) == target_size
+                if int(previous_size / dim_factors[dim]) != target_size:
+                    can_downsample_incrementally = False
+                    break
+
+        if can_downsample_incrementally:
+            # Downsample from previous image (incremental - more accurate, less memory)
+            current_image = _align_chunks(previous_image, default_chunks, dim_factors)
+        else:
+            # Must downsample from original to get exact target size
+            # Recalculate factors from original
+            original_dim_factors = {d: 1 for d in dims}
+            dim_factors = _dim_scale_factors(dims, scale_factor, original_dim_factors)
+            current_image = _align_chunks(ngff_image, default_chunks, dim_factors)
 
         # Operate on a contiguous spatial block
-        previous_image = _spatial_dims_last_zyx(previous_image)
-        if tuple(previous_image.dims) != dims:
+        current_image = _spatial_dims_last_zyx(current_image)
+        if tuple(current_image.dims) != dims:
             transposed_dims = True
-            reorder = [previous_image.dims.index(dim) for dim in dims]
+            reorder = [current_image.dims.index(dim) for dim in dims]
 
         translation, scale = _next_scale_metadata(
-            previous_image, dim_factors, spatial_dims
+            current_image, dim_factors, spatial_dims
         )
 
         # Blocks 0, ..., N-2 have the same shape
-        block_0_input = _get_block(previous_image, 0)
+        block_0_input = _get_block(current_image, 0)
         next_block_0_shape = _next_block_shape(
-            previous_image, dim_factors, spatial_dims, block_0_input
+            current_image, dim_factors, spatial_dims, block_0_input
         )
         block_0_size = []
         for dim in spatial_dims:
-            if dim in previous_image.dims:
-                block_0_size.append(block_0_input.shape[previous_image.dims.index(dim)])
+            if dim in current_image.dims:
+                block_0_size.append(block_0_input.shape[current_image.dims.index(dim)])
             else:
                 block_0_size.append(1)
         block_0_size.reverse()
 
         # Block N-1 may be smaller than preceding blocks
-        block_neg1_input = _get_block(previous_image, -1)
+        block_neg1_input = _get_block(current_image, -1)
         next_block_neg1_shape = _next_block_shape(
-            previous_image, dim_factors, spatial_dims, block_neg1_input
+            current_image, dim_factors, spatial_dims, block_neg1_input
         )
 
         # Compute overlap for Gaussian blurring for all blocks
-        is_vector = previous_image.dims[-1] == "c"
+        is_vector = current_image.dims[-1] == "c"
 
         # pixel units
         # Compute metadata for region splitting
@@ -146,9 +178,9 @@ def _downsample_itkwasm(
 
         dtype = block_0_input.dtype
 
-        output_chunks = list(previous_image.data.chunks)
+        output_chunks = list(current_image.data.chunks)
         output_chunks_start = 0
-        while previous_image.dims[output_chunks_start] not in _spatial_dims:
+        while current_image.dims[output_chunks_start] not in _spatial_dims:
             output_chunks_start += 1
         output_chunks = output_chunks[output_chunks_start:]
         next_block_0_shape = next_block_0_shape[output_chunks_start:]
@@ -164,7 +196,7 @@ def _downsample_itkwasm(
         output_chunks = tuple(output_chunks)
 
         non_spatial_dims = [d for d in dims if d not in _spatial_dims]
-        if "c" in non_spatial_dims and previous_image.dims[-1] == "c":
+        if "c" in non_spatial_dims and current_image.dims[-1] == "c":
             non_spatial_dims.remove("c")
 
         if output_chunks_start > 0:
@@ -172,7 +204,7 @@ def _downsample_itkwasm(
             # map_overlap, and aggregate the outputs into a final result.
 
             # Determine the size for each non-spatial dimension
-            non_spatial_shapes = previous_image.data.shape[:output_chunks_start]
+            non_spatial_shapes = current_image.data.shape[:output_chunks_start]
 
             # Collect results for each sub-block
             aggregated_blocks = []
@@ -180,7 +212,7 @@ def _downsample_itkwasm(
                 # Build the slice object for indexing
                 slice_obj = []
                 non_spatial_index = 0
-                for dim in previous_image.dims:
+                for dim in current_image.dims:
                     if dim in non_spatial_dims:
                         # Take a single index (like "t=0,1,...") for the non-spatial dimension
                         slice_obj.append(idx[non_spatial_index])
@@ -191,7 +223,7 @@ def _downsample_itkwasm(
 
                 slice_obj = tuple(slice_obj)
                 # Extract the sub-block data for the chosen index from the non-spatial dims
-                sub_block_data = previous_image.data[slice_obj]
+                sub_block_data = current_image.data[slice_obj]
 
                 if smoothing == "bin_shrink":
                     downscaled_sub_block = map_blocks(
@@ -227,7 +259,7 @@ def _downsample_itkwasm(
                 # Build the slice object for indexing
                 slice_obj = []
                 non_spatial_index = 0
-                for dim in previous_image.dims:
+                for dim in current_image.dims:
                     if dim in non_spatial_dims:
                         # Take a single index (like "t=0,1,...") for the non-spatial dimension
                         slice_obj.append(idx[non_spatial_index])
@@ -239,7 +271,7 @@ def _downsample_itkwasm(
                 slice_obj = tuple(slice_obj)
                 downscaled_array[slice_obj] = aggregated_blocks[sub_block_idx]
         else:
-            data = previous_image.data
+            data = current_image.data
             if smoothing == "bin_shrink":
                 downscaled_array = map_blocks(
                     _itkwasm_chunk_bin_shrink,
@@ -265,7 +297,7 @@ def _downsample_itkwasm(
                 )
 
         out_chunks_list = []
-        for dim in previous_image.dims:
+        for dim in current_image.dims:
             if dim in out_chunks:
                 out_chunks_list.append(out_chunks[dim])
             else:
@@ -276,7 +308,13 @@ def _downsample_itkwasm(
         if transposed_dims:
             downscaled_array = downscaled_array.transpose(reorder)
 
-        previous_image = NgffImage(downscaled_array, dims, scale, translation)
-        multiscales.append(previous_image)
+        current_image = NgffImage(downscaled_array, dims, scale, translation)
+        multiscales.append(current_image)
+
+        # Update for next iteration
+        previous_image = current_image
+        previous_dim_factors = _update_previous_dim_factors(
+            scale_factor, spatial_dims, previous_dim_factors
+        )
 
     return multiscales

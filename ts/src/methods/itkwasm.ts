@@ -24,32 +24,106 @@ interface DimFactors {
  * Convert dimension scale factors to ITK-Wasm format
  * This computes the incremental scale factor relative to the previous scale,
  * not the absolute scale factor from the original image.
+ *
+ * When originalImage and previousImage are provided, calculates the exact
+ * incremental factor needed to reach the target size from the previous size.
+ * This ensures we get exact 1x, 2x, 3x, 4x sizes even with incremental downsampling.
  */
 function dimScaleFactors(
   dims: string[],
   scaleFactor: Record<string, number> | number,
   previousDimFactors: DimFactors,
+  originalImage?: NgffImage,
+  previousImage?: NgffImage,
 ): DimFactors {
   const dimFactors: DimFactors = {};
 
   if (typeof scaleFactor === "number") {
-    for (const dim of dims) {
-      if (SPATIAL_DIMS.includes(dim)) {
-        // Divide by previous factor to get incremental scaling
-        // Use Math.floor to truncate (matching Python's int() behavior)
-        const incrementalFactor = scaleFactor / (previousDimFactors[dim] || 1);
-        dimFactors[dim] = Math.max(1, Math.floor(incrementalFactor));
-      } else {
-        dimFactors[dim] = previousDimFactors[dim] || 1;
+    if (originalImage !== undefined && previousImage !== undefined) {
+      // Calculate target size: floor(original_size / scale_factor)
+      // Then calculate incremental factor from previous size to target size
+      for (const dim of dims) {
+        if (SPATIAL_DIMS.includes(dim)) {
+          const dimIndex = originalImage.dims.indexOf(dim);
+          const originalSize = originalImage.data.shape[dimIndex];
+          const targetSize = Math.floor(originalSize / scaleFactor);
+
+          const prevDimIndex = previousImage.dims.indexOf(dim);
+          const previousSize = previousImage.data.shape[prevDimIndex];
+
+          // Calculate factor such that floor(previous_size / factor) = target_size
+          let incrementalFactor = 1;
+          if (targetSize > 0) {
+            // Start with the theoretical factor
+            let factor = Math.floor(
+              Math.ceil(previousSize / (targetSize + 0.5)),
+            );
+            // Verify this gives us the right size
+            let actualSize = Math.floor(previousSize / factor);
+            if (actualSize !== targetSize) {
+              // Adjust factor to get exact target
+              factor = Math.max(1, Math.floor(previousSize / targetSize));
+              actualSize = Math.floor(previousSize / factor);
+              // If still not exact, try ceil
+              if (actualSize !== targetSize) {
+                factor = Math.max(1, Math.ceil(previousSize / targetSize));
+              }
+            }
+            incrementalFactor = Math.max(1, factor);
+          }
+          dimFactors[dim] = incrementalFactor;
+        } else {
+          dimFactors[dim] = 1;
+        }
+      }
+    } else {
+      // Fallback to old behavior when images not provided
+      for (const dim of dims) {
+        if (SPATIAL_DIMS.includes(dim)) {
+          // Divide by previous factor to get incremental scaling
+          // Use Math.floor to truncate (matching Python's int() behavior)
+          const incrementalFactor = scaleFactor /
+            (previousDimFactors[dim] || 1);
+          dimFactors[dim] = Math.max(1, Math.floor(incrementalFactor));
+        } else {
+          dimFactors[dim] = previousDimFactors[dim] || 1;
+        }
       }
     }
   } else {
-    for (const dim in scaleFactor) {
-      // Divide by previous factor to get incremental scaling
-      // Use Math.floor to truncate (matching Python's int() behavior)
-      const incrementalFactor = scaleFactor[dim] /
-        (previousDimFactors[dim] || 1);
-      dimFactors[dim] = Math.max(1, Math.floor(incrementalFactor));
+    if (originalImage !== undefined && previousImage !== undefined) {
+      for (const dim in scaleFactor) {
+        const dimIndex = originalImage.dims.indexOf(dim);
+        const originalSize = originalImage.data.shape[dimIndex];
+        const targetSize = Math.floor(originalSize / scaleFactor[dim]);
+
+        const prevDimIndex = previousImage.dims.indexOf(dim);
+        const previousSize = previousImage.data.shape[prevDimIndex];
+
+        let incrementalFactor = 1;
+        if (targetSize > 0) {
+          let factor = Math.floor(Math.ceil(previousSize / (targetSize + 0.5)));
+          let actualSize = Math.floor(previousSize / factor);
+          if (actualSize !== targetSize) {
+            factor = Math.max(1, Math.floor(previousSize / targetSize));
+            actualSize = Math.floor(previousSize / factor);
+            if (actualSize !== targetSize) {
+              factor = Math.max(1, Math.ceil(previousSize / targetSize));
+            }
+          }
+          incrementalFactor = Math.max(1, factor);
+        }
+        dimFactors[dim] = incrementalFactor;
+      }
+    } else {
+      // Fallback to old behavior when images not provided
+      for (const dim in scaleFactor) {
+        // Divide by previous factor to get incremental scaling
+        // Use Math.floor to truncate (matching Python's int() behavior)
+        const incrementalFactor = scaleFactor[dim] /
+          (previousDimFactors[dim] || 1);
+        dimFactors[dim] = Math.max(1, Math.floor(incrementalFactor));
+      }
     }
     // Add dims not in scale_factor with factor of 1
     for (const dim of dims) {
@@ -70,17 +144,15 @@ function updatePreviousDimFactors(
   spatialDims: string[],
   previousDimFactors: DimFactors,
 ): DimFactors {
-  const updated: DimFactors = { ...previousDimFactors };
+  const updated = { ...previousDimFactors };
 
   if (typeof scaleFactor === "number") {
     for (const dim of spatialDims) {
       updated[dim] = scaleFactor;
     }
   } else {
-    for (const dim of spatialDims) {
-      if (dim in scaleFactor) {
-        updated[dim] = scaleFactor[dim];
-      }
+    for (const dim in scaleFactor) {
+      updated[dim] = scaleFactor[dim];
     }
   }
 
@@ -415,8 +487,6 @@ async function downsampleGaussian(
   image: NgffImage,
   dimFactors: DimFactors,
   spatialDims: string[],
-  scaleNumber: number,
-  sharedStore: Map<string, Uint8Array>,
 ): Promise<NgffImage> {
   const isVector = image.dims.includes("c");
 
@@ -448,15 +518,12 @@ async function downsampleGaussian(
     spatialDims,
   );
 
-  // Convert back to zarr array with scale-specific path using shared store
-  // Note: scaleNumber is 1-indexed (1, 2, 3...) for downsampled scales
-  const chunkShape = downsampled.size.map((s) => Math.min(s, 256));
-  const array = await itkImageToZarr(
-    downsampled,
-    sharedStore,
-    `scale${scaleNumber}`,
-    chunkShape,
-  );
+  // Convert back to zarr array in a new in-memory store
+  // Each downsampled image gets its own store - toNgffZarr will handle copying to target
+  const store = new Map<string, Uint8Array>();
+  // Chunk shape needs to be in zarr order (reversed from ITK order)
+  const chunkShape = downsampled.size.map((s) => Math.min(s, 256)).reverse();
+  const array = await itkImageToZarr(downsampled, store, "image", chunkShape);
 
   return new NgffImage({
     data: array,
@@ -476,8 +543,6 @@ async function downsampleBinShrinkImpl(
   image: NgffImage,
   dimFactors: DimFactors,
   spatialDims: string[],
-  scaleNumber: number,
-  sharedStore: Map<string, Uint8Array>,
 ): Promise<NgffImage> {
   const isVector = image.dims.includes("c");
 
@@ -507,14 +572,12 @@ async function downsampleBinShrinkImpl(
     spatialDims,
   );
 
-  // Convert back to zarr array with scale-specific path using shared store
-  const chunkShape = downsampled.size.map((s) => Math.min(s, 256));
-  const array = await itkImageToZarr(
-    downsampled,
-    sharedStore,
-    `scale${scaleNumber}`,
-    chunkShape,
-  );
+  // Convert back to zarr array in a new in-memory store
+  // Each downsampled image gets its own store - toNgffZarr will handle copying to target
+  const store = new Map<string, Uint8Array>();
+  // Chunk shape needs to be in zarr order (reversed from ITK order)
+  const chunkShape = downsampled.size.map((s) => Math.min(s, 256)).reverse();
+  const array = await itkImageToZarr(downsampled, store, "image", chunkShape);
 
   return new NgffImage({
     data: array,
@@ -534,8 +597,6 @@ async function downsampleLabelImageImpl(
   image: NgffImage,
   dimFactors: DimFactors,
   spatialDims: string[],
-  scaleNumber: number,
-  sharedStore: Map<string, Uint8Array>,
 ): Promise<NgffImage> {
   const isVector = image.dims.includes("c");
 
@@ -569,14 +630,12 @@ async function downsampleLabelImageImpl(
     spatialDims,
   );
 
-  // Convert back to zarr array with scale-specific path using shared store
-  const chunkShape = downsampled.size.map((s) => Math.min(s, 256));
-  const array = await itkImageToZarr(
-    downsampled,
-    sharedStore,
-    `scale${scaleNumber}`,
-    chunkShape,
-  );
+  // Convert back to zarr array in a new in-memory store
+  // Each downsampled image gets its own store - toNgffZarr will handle copying to target
+  const store = new Map<string, Uint8Array>();
+  // Chunk shape needs to be in zarr order (reversed from ITK order)
+  const chunkShape = downsampled.size.map((s) => Math.min(s, 256)).reverse();
+  const array = await itkImageToZarr(downsampled, store, "image", chunkShape);
 
   return new NgffImage({
     data: array,
@@ -598,60 +657,100 @@ export async function downsampleItkWasm(
   smoothing: "gaussian" | "bin_shrink" | "label_image",
 ): Promise<NgffImage[]> {
   const multiscales: NgffImage[] = [ngffImage];
-  let previousImage = ngffImage;
   const dims = ngffImage.dims;
+  const spatialDims = dims.filter((dim) => SPATIAL_DIMS.includes(dim));
+
+  // Each scale factor is absolute from the original image
+  // Use hybrid incremental/from-original downsampling for accuracy and exact sizes
+  let previousImage = ngffImage;
   let previousDimFactors: DimFactors = {};
   for (const dim of dims) {
     previousDimFactors[dim] = 1;
   }
 
-  const spatialDims = dims.filter((dim) => SPATIAL_DIMS.includes(dim));
-
-  // Get the shared store from the original image - all scales will use this same store
-  const sharedStore = ngffImage.data.store as Map<string, Uint8Array>;
-
   for (let i = 0; i < scaleFactors.length; i++) {
     const scaleFactor = scaleFactors[i];
-    const scaleNumber = i + 1; // scale0 is the original, scale1 is first downsample, etc.
 
-    const dimFactors = dimScaleFactors(dims, scaleFactor, previousDimFactors);
-    previousDimFactors = updatePreviousDimFactors(
+    // Calculate incremental dim factors from the previous image
+    const dimFactors = dimScaleFactors(
+      dims,
       scaleFactor,
-      spatialDims,
       previousDimFactors,
+      ngffImage,
+      previousImage,
     );
+
+    // Check if we can achieve exact target size with incremental downsampling
+    let canDownsampleIncrementally = true;
+    for (const dim of Object.keys(dimFactors)) {
+      const dimIndex = ngffImage.dims.indexOf(dim);
+      if (dimIndex >= 0) {
+        const originalSize = ngffImage.data.shape[dimIndex];
+        const targetSize = Math.floor(
+          originalSize /
+            (typeof scaleFactor === "number" ? scaleFactor : scaleFactor[dim]),
+        );
+
+        const prevDimIndex = previousImage.dims.indexOf(dim);
+        const previousSize = previousImage.data.shape[prevDimIndex];
+
+        // Check if floor(previous_size / dim_factor) == target_size
+        if (Math.floor(previousSize / dimFactors[dim]) !== targetSize) {
+          canDownsampleIncrementally = false;
+          break;
+        }
+      }
+    }
+
+    let sourceImage: NgffImage;
+    let sourceDimFactors: DimFactors;
+
+    if (canDownsampleIncrementally) {
+      // Downsample from previous image (incremental - more accurate, less memory)
+      sourceImage = previousImage;
+      sourceDimFactors = dimFactors;
+    } else {
+      // Must downsample from original to get exact target size
+      sourceImage = ngffImage;
+      const originalDimFactors: DimFactors = {};
+      for (const dim of dims) {
+        originalDimFactors[dim] = 1;
+      }
+      sourceDimFactors = dimScaleFactors(dims, scaleFactor, originalDimFactors);
+    }
 
     let downsampled: NgffImage;
     if (smoothing === "gaussian") {
       downsampled = await downsampleGaussian(
-        previousImage,
-        dimFactors,
+        sourceImage,
+        sourceDimFactors,
         spatialDims,
-        scaleNumber,
-        sharedStore,
       );
     } else if (smoothing === "bin_shrink") {
       downsampled = await downsampleBinShrinkImpl(
-        previousImage,
-        dimFactors,
+        sourceImage,
+        sourceDimFactors,
         spatialDims,
-        scaleNumber,
-        sharedStore,
       );
     } else if (smoothing === "label_image") {
       downsampled = await downsampleLabelImageImpl(
-        previousImage,
-        dimFactors,
+        sourceImage,
+        sourceDimFactors,
         spatialDims,
-        scaleNumber,
-        sharedStore,
       );
     } else {
       throw new Error(`Unknown smoothing method: ${smoothing}`);
     }
 
     multiscales.push(downsampled);
+
+    // Update for next iteration
     previousImage = downsampled;
+    previousDimFactors = updatePreviousDimFactors(
+      scaleFactor,
+      spatialDims,
+      previousDimFactors,
+    );
   }
 
   return multiscales;
