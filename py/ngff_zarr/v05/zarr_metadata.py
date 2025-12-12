@@ -1,10 +1,11 @@
 # SPDX-FileCopyrightText: Copyright (c) Fideus Labs LLC
 # SPDX-License-Identifier: MIT
-from typing import List, Optional
+from typing import List, Optional, Union
 from dataclasses import dataclass
 
 from ..v04.zarr_metadata import Axis, Transform, Dataset, Omero, MethodMetadata
-from .._supported_versions import SUPPORTED_VERSIONS
+from .._supported_versions import NgffVersion
+from .._zarr_types import StoreLike
 
 
 @dataclass
@@ -17,25 +18,29 @@ class Metadata:
     type: Optional[str] = None
     metadata: Optional[MethodMetadata] = None
 
-    def to_version(self, version: str) -> "Metadata":
-        if version not in SUPPORTED_VERSIONS:
-            raise ValueError(f"Unsupported version conversion: 0.5 -> {version}")
-        if version == "0.5":
+    def to_version(self, version: Union[str, NgffVersion]) -> "Metadata":
+        """Convert metadata to specified NGFF version."""
+        if isinstance(version, str):
+            version = NgffVersion(version)
+
+        if version == NgffVersion.V04:
+            return self._to_v04()
+        elif version == NgffVersion.V05:
             return self
-        elif version == "0.4":
-            return self.to_v04()
-            
+        else:
+            raise ValueError(f"Unsupported version conversion: 0.5 -> {version}")
         
     @classmethod
     def from_version(cls, metadata: "Metadata") -> "Metadata":
+        """Convert metadata from specified NGFF version."""
         from ..v04.zarr_metadata import Metadata as Metadata_v04
         
         if isinstance(metadata, Metadata_v04):
-            return cls.from_v04(metadata)
+            return cls._from_v04(metadata)
         else:
             raise ValueError(f"Unsupported metadata type: {type(metadata)}")
 
-    def to_v04(self) -> "Metadata":
+    def _to_v04(self) -> "Metadata":
         from ..v04.zarr_metadata import Metadata as Metadata_v04
         
         metadata = Metadata_v04(
@@ -50,7 +55,7 @@ class Metadata:
         return metadata
     
     @classmethod
-    def from_v04(cls, metadata_v04: "Metadata") -> "Metadata":
+    def _from_v04(cls, metadata_v04: "Metadata") -> "Metadata":
         
         metadata = cls(
             axes=metadata_v04.axes,
@@ -62,6 +67,21 @@ class Metadata:
             omero=metadata_v04.omero,
         )
         return metadata
+
+    @classmethod
+    def _from_zarr_attrs(
+        cls,
+        root_attrs: dict,
+        store: StoreLike,
+        validate: bool = False,
+        ) -> tuple["Metadata", list["NgffImage"]]:
+        from ..v04.zarr_metadata import Metadata as Metadata_v04
+
+        v4_metadata, images = Metadata_v04._from_zarr_attrs(
+            root_attrs['ome'], store, validate=validate
+        )
+        metadata = cls._from_v04(v4_metadata)
+        return metadata, images
     
     @property
     def dimension_names(self) -> tuple:
