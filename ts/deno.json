@@ -2,7 +2,13 @@
   "name": "@fideus-labs/ngff-zarr",
   "version": "0.2.0",
   "license": "MIT",
-  "exports": "./src/mod.ts",
+  "exports": {
+    ".": "./src/mod.ts",
+    "./browser": "./src/browser-mod.ts",
+    "./methods/itkwasm": "./src/methods/itkwasm.ts",
+    "./methods/itkwasm-browser": "./src/methods/itkwasm-browser.ts",
+    "./methods/itkwasm-node": "./src/methods/itkwasm-node.ts"
+  },
   "tasks": {
     "dev": "deno run --allow-all src/mod.ts",
     "dev:server": "deno run --allow-all test/browser/server.ts",
@@ -30,7 +36,7 @@
     "@std/path": "jsr:@std/path@^1.0.8",
     "@zarrita/storage": "jsr:@zarrita/storage@^0.1.1",
     "dnt": "jsr:@deno/dnt@^0.41.3",
-    "itk-wasm": "npm:itk-wasm@^1.0.0-b.195",
+    "itk-wasm": "npm:itk-wasm@^1.0.0-b.196",
     "microdiff": "npm:microdiff@^1.4.0",
     "p-queue": "npm:p-queue@^8.1.0",
     "zod": "npm:zod@^4.0.2",
