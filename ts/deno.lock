@@ -51,7 +51,7 @@
     "npm:@itk-wasm/image-io@^1.6.0": "1.6.0",
     "npm:@playwright/test@^1.54.1": "1.54.1",
     "npm:@types/node@*": "22.15.15",
-    "npm:itk-wasm@^1.0.0-b.195": "1.0.0-b.196",
+    "npm:itk-wasm@^1.0.0-b.196": "1.0.0-b.196",
     "npm:microdiff@^1.4.0": "1.5.0",
     "npm:numcodecs@~0.3.2": "0.3.2",
     "npm:p-queue@^8.1.0": "8.1.0",
@@ -1375,7 +1375,7 @@
       "npm:@itk-wasm/downsample@^1.8.1",
       "npm:@itk-wasm/image-io@^1.6.0",
       "npm:@playwright/test@^1.54.1",
-      "npm:itk-wasm@^1.0.0-b.195",
+      "npm:itk-wasm@^1.0.0-b.196",
       "npm:microdiff@^1.4.0",
       "npm:p-queue@^8.1.0",
       "npm:zod@^4.0.2"

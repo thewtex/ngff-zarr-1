@@ -50,7 +50,7 @@ await build({
     files: ["esm/", "script/", "types/", "README.md", "LICENSE"],
     dependencies: {
       "@itk-wasm/downsample": "^1.8.1",
-      "itk-wasm": "^1.0.0-b.195",
+      "itk-wasm": "^1.0.0-b.196",
       "p-queue": "^8.1.0",
       "@zarrita/storage": "^0.1.1",
       zod: "^4.0.2",
