@@ -24,7 +24,7 @@
     "check": "deno check src/mod.ts",
     "build": "deno run --allow-all scripts/build.ts",
     "build:npm": "deno run --allow-all scripts/build_npm.ts",
-    "build:bundle": "deno bundle --platform=browser --format=esm --minify -o test/browser-npm/ngff-zarr.bundle.js src/browser-mod.ts"
+    "build:bundle": "deno run --allow-all scripts/build_npm.ts && cd npm && npx esbuild esm/browser-mod.js --bundle --format=esm --platform=browser --minify --outfile=../test/browser-npm/ngff-zarr.bundle.js"
   },
   "imports": {
     "@itk-wasm/compare-images": "npm:@itk-wasm/compare-images@^5.4.1",

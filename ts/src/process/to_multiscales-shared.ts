@@ -18,9 +18,6 @@ import {
 } from "../utils/factory.ts";
 import { getMethodMetadata } from "../utils/method_metadata.ts";
 
-// Re-export for convenience
-export { toNgffImage, type ToNgffImageOptions } from "../io/to_ngff_image.ts";
-
 export interface ToMultiscalesOptions {
   scaleFactors?: (Record<string, number> | number)[];
   method?: Methods;

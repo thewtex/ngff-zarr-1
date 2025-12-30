@@ -14,8 +14,9 @@ import {
   type ToMultiscalesOptions,
 } from "./to_multiscales-shared.ts";
 
-// Re-export types and utilities for convenience
-export { toNgffImage, type ToNgffImageOptions } from "../io/to_ngff_image.ts";
+// Re-export types for convenience
+// Note: toNgffImage is NOT re-exported from browser version because it depends on I/O modules
+// that have Node.js-specific imports. Use toNgffImage from the main mod.ts for Node.js/Deno.
 export type { ToMultiscalesOptions } from "./to_multiscales-shared.ts";
 
 /**
