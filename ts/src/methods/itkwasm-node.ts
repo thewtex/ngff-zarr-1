@@ -4,6 +4,11 @@
 /**
  * Node-compatible ITK-Wasm downsampling support
  * Uses native WASM implementations from @itk-wasm/downsample
+ *
+ * Note: Imports Node-specific functions that are available when the
+ * "node" condition is active in package.json exports resolution.
+ * The @itk-wasm/downsample package uses conditional exports to provide
+ * different implementations for browser vs Node environments.
  */
 
 import {

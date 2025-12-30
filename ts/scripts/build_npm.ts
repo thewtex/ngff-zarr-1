@@ -51,6 +51,8 @@ await build({
     exports: {
       ".": {
         types: "./esm/mod.d.ts",
+        browser: "./esm/browser-mod.js",
+        node: "./esm/mod.js",
         import: "./esm/mod.js",
         require: "./script/mod.js",
         default: "./esm/mod.js",
