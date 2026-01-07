@@ -144,10 +144,21 @@ export async function fromZarrAttrsV04(
   >;
 
   // Open root group for array access
-  let optimizedStore;
+  let optimizedStore: MemoryStore | zarr.FetchStore | zarr.Readable;
   try {
-    // @ts-ignore: tryWithConsolidated typing
-    optimizedStore = await zarr.tryWithConsolidated(store);
+    const tryWithConsolidated: ((s: unknown) => Promise<unknown>) | undefined =
+      (zarr as unknown as {
+        tryWithConsolidated?: (s: unknown) => Promise<unknown>;
+      })
+        .tryWithConsolidated;
+    if (tryWithConsolidated) {
+      optimizedStore = (await tryWithConsolidated(store)) as
+        | MemoryStore
+        | zarr.FetchStore
+        | zarr.Readable;
+    } else {
+      optimizedStore = store;
+    }
   } catch {
     optimizedStore = store;
   }
