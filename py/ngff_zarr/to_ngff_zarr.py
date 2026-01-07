@@ -1016,7 +1016,6 @@ def _prepare_next_scale(
         and multiscales.scale_factors
         and multiscales.method
         and multiscales.chunks
-        and multiscales.scale_factors
     ):
         for callback in image.computed_callbacks:
             callback()
