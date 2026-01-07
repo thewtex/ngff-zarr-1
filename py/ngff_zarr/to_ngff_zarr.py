@@ -984,11 +984,12 @@ def _prepare_next_scale(
     progress: Optional[Union[NgffProgress, NgffProgressCallback]],
 ) -> Optional[object]:
     """Prepare the next scale for processing if needed."""
+    # No next scale if we're at the last one
+    if index >= nscales - 1:
+        return None
     # Minimize task graph depth
     if (
-        index > 1
-        and index < nscales - 2
-        and multiscales.scale_factors
+        multiscales.scale_factors
         and multiscales.method
         and multiscales.chunks
     ):
@@ -997,16 +998,22 @@ def _prepare_next_scale(
         image.computed_callbacks = []
 
         image.data = dask.array.from_zarr(store, component=path)
+
+        # Fetch scale factor for this index; used directly for index 0,
+        # converted to a relative factor for index > 0
         next_multiscales_factor = multiscales.scale_factors[index]
-        if isinstance(next_multiscales_factor, int):
-            next_multiscales_factor = (
-                next_multiscales_factor // multiscales.scale_factors[index - 1]
-            )
-        else:
-            updated_factors = {}
-            for d, f in next_multiscales_factor.items():
-                updated_factors[d] = f // multiscales.scale_factors[index - 1][d]
-            next_multiscales_factor = updated_factors
+
+        # For subsequent levels (index > 0), compute relative scale factor
+        if index > 0:
+            # If scales have been passed as list of integers
+            if isinstance(next_multiscales_factor, int):
+                next_multiscales_factor = next_multiscales_factor // multiscales.scale_factors[index - 1]
+            # If scales have been passed as dict of per-dimension factors
+            else:
+                updated_factors = {}
+                for d, f in next_multiscales_factor.items():
+                    updated_factors[d] = f // multiscales.scale_factors[index - 1][d]
+                next_multiscales_factor = updated_factors
 
         next_multiscales = to_multiscales(
             image,
@@ -1020,9 +1027,8 @@ def _prepare_next_scale(
         )
         multiscales.images[index + 1] = next_multiscales.images[1]
         return next_multiscales.images[1]
-    elif index < nscales - 1:
+    else:
         return multiscales.images[index + 1]
-    return None
 
 
 def to_ngff_zarr(
