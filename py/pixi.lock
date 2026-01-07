@@ -875,7 +875,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zstandard-0.25.0-py313h54dd161_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zstd-1.5.7-hb8e6e7a_2.conda
       - pypi: https://files.pythonhosted.org/packages/32/34/d4e1c02d3bee589efb5dfa17f88ea08bdb3e3eac12bc475462aec52ed223/alabaster-0.7.16-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/7f/9c/36c5c37947ebfb8c7f22e0eb6e4d188ee2d53aa3880f3f2744fb894f0cb1/anyio-4.12.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/38/0e/27be9fdef66e72d64c0cdc3cc2823101b80585f8119b5c112c2e8f5f7dab/anyio-4.12.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/af/0f/3b8fdc946b4d9cc8cc1e8af42c4e409468c84441b933d037e101b3d72d86/astroid-3.3.11-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b7/b8/3fe70c75fe32afc4bb507f75563d39bc5642255d1d94f1f23604725780bf/babel-2.17.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1a/39/47f9197bdd44df24d67ac8893641e16f386c984a0619ef2ee4c51fbbc019/beautifulsoup4-4.14.3-py3-none-any.whl
@@ -954,7 +954,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/zstandard-0.25.0-py312hd41f8a7_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/zstd-1.5.7-hbcf94c1_2.conda
       - pypi: https://files.pythonhosted.org/packages/32/34/d4e1c02d3bee589efb5dfa17f88ea08bdb3e3eac12bc475462aec52ed223/alabaster-0.7.16-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/7f/9c/36c5c37947ebfb8c7f22e0eb6e4d188ee2d53aa3880f3f2744fb894f0cb1/anyio-4.12.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/38/0e/27be9fdef66e72d64c0cdc3cc2823101b80585f8119b5c112c2e8f5f7dab/anyio-4.12.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/af/0f/3b8fdc946b4d9cc8cc1e8af42c4e409468c84441b933d037e101b3d72d86/astroid-3.3.11-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b7/b8/3fe70c75fe32afc4bb507f75563d39bc5642255d1d94f1f23604725780bf/babel-2.17.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1a/39/47f9197bdd44df24d67ac8893641e16f386c984a0619ef2ee4c51fbbc019/beautifulsoup4-4.14.3-py3-none-any.whl
@@ -1026,7 +1026,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstandard-0.25.0-py313hcb05632_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstd-1.5.7-h8210216_2.conda
       - pypi: https://files.pythonhosted.org/packages/32/34/d4e1c02d3bee589efb5dfa17f88ea08bdb3e3eac12bc475462aec52ed223/alabaster-0.7.16-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/7f/9c/36c5c37947ebfb8c7f22e0eb6e4d188ee2d53aa3880f3f2744fb894f0cb1/anyio-4.12.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/38/0e/27be9fdef66e72d64c0cdc3cc2823101b80585f8119b5c112c2e8f5f7dab/anyio-4.12.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/af/0f/3b8fdc946b4d9cc8cc1e8af42c4e409468c84441b933d037e101b3d72d86/astroid-3.3.11-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b7/b8/3fe70c75fe32afc4bb507f75563d39bc5642255d1d94f1f23604725780bf/babel-2.17.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1a/39/47f9197bdd44df24d67ac8893641e16f386c984a0619ef2ee4c51fbbc019/beautifulsoup4-4.14.3-py3-none-any.whl
@@ -1099,7 +1099,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstandard-0.25.0-py313h9734d34_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.7-h6491c7d_2.conda
       - pypi: https://files.pythonhosted.org/packages/32/34/d4e1c02d3bee589efb5dfa17f88ea08bdb3e3eac12bc475462aec52ed223/alabaster-0.7.16-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/7f/9c/36c5c37947ebfb8c7f22e0eb6e4d188ee2d53aa3880f3f2744fb894f0cb1/anyio-4.12.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/38/0e/27be9fdef66e72d64c0cdc3cc2823101b80585f8119b5c112c2e8f5f7dab/anyio-4.12.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/af/0f/3b8fdc946b4d9cc8cc1e8af42c4e409468c84441b933d037e101b3d72d86/astroid-3.3.11-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b7/b8/3fe70c75fe32afc4bb507f75563d39bc5642255d1d94f1f23604725780bf/babel-2.17.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1a/39/47f9197bdd44df24d67ac8893641e16f386c984a0619ef2ee4c51fbbc019/beautifulsoup4-4.14.3-py3-none-any.whl
@@ -1173,7 +1173,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/zstandard-0.25.0-py313h5fd188c_1.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/zstd-1.5.7-hbeecb71_2.conda
       - pypi: https://files.pythonhosted.org/packages/32/34/d4e1c02d3bee589efb5dfa17f88ea08bdb3e3eac12bc475462aec52ed223/alabaster-0.7.16-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/7f/9c/36c5c37947ebfb8c7f22e0eb6e4d188ee2d53aa3880f3f2744fb894f0cb1/anyio-4.12.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/38/0e/27be9fdef66e72d64c0cdc3cc2823101b80585f8119b5c112c2e8f5f7dab/anyio-4.12.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/af/0f/3b8fdc946b4d9cc8cc1e8af42c4e409468c84441b933d037e101b3d72d86/astroid-3.3.11-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b7/b8/3fe70c75fe32afc4bb507f75563d39bc5642255d1d94f1f23604725780bf/babel-2.17.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1a/39/47f9197bdd44df24d67ac8893641e16f386c984a0619ef2ee4c51fbbc019/beautifulsoup4-4.14.3-py3-none-any.whl
@@ -1565,7 +1565,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/0c/d5/c5db1ea3394c6e1732fb3286b3bd878b59507a8f77d32a2cebda7d7b7cd4/donfig-0.8.1.post1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/51/c7/b64cae5dba3a1b138d7123ec36bb5ccd39d39939f18454407e5468f4763f/fsspec-2025.12.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ce/42/b468aec74a0354b34c8cbf748db20d6e350a68a2b0912e128cabee49806c/google_crc32c-1.8.0-cp313-cp313-manylinux1_x86_64.manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_5_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/a8/ac/fde1f9f99ebe7d8b989bb0005883b69f35abd6ac2d677e0a0caf23f29961/imagecodecs-2025.11.11-cp311-abi3-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
+      - pypi: https://files.pythonhosted.org/packages/59/81/d967317829a265c3a25c69791f7d2c8ce529d4bbcb1d8312a3cd1c6d2886/imagecodecs-2026.1.1-cp311-abi3-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/fb/fe/301e0936b79bcab4cacc7548bf2853fc28dced0a578bab1f7ef53c9aa75b/imageio-2.37.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a4/ed/1f1afb2e9e7f38a545d628f864d562a5ae64fe6f7a10e28ffb9b185b4e89/importlib_resources-6.5.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl
@@ -1776,7 +1776,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/0c/d5/c5db1ea3394c6e1732fb3286b3bd878b59507a8f77d32a2cebda7d7b7cd4/donfig-0.8.1.post1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/51/c7/b64cae5dba3a1b138d7123ec36bb5ccd39d39939f18454407e5468f4763f/fsspec-2025.12.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/21/3f/3457ea803db0198c9aaca2dd373750972ce28a26f00544b6b85088811939/google_crc32c-1.8.0-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.whl
-      - pypi: https://files.pythonhosted.org/packages/ca/5e/d98ce5608a48efff8f07139b11e4e76f7a05471dc327fb28e696afa7504c/imagecodecs-2025.11.11-cp311-abi3-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl
+      - pypi: https://files.pythonhosted.org/packages/7d/3d/8061ce17ed4ae72338948bf164b40bbb989cf71325a13f169d8fbeb22ce2/imagecodecs-2026.1.1-cp311-abi3-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl
       - pypi: https://files.pythonhosted.org/packages/fb/fe/301e0936b79bcab4cacc7548bf2853fc28dced0a578bab1f7ef53c9aa75b/imageio-2.37.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a4/ed/1f1afb2e9e7f38a545d628f864d562a5ae64fe6f7a10e28ffb9b185b4e89/importlib_resources-6.5.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl
@@ -1915,7 +1915,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/0c/d5/c5db1ea3394c6e1732fb3286b3bd878b59507a8f77d32a2cebda7d7b7cd4/donfig-0.8.1.post1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/51/c7/b64cae5dba3a1b138d7123ec36bb5ccd39d39939f18454407e5468f4763f/fsspec-2025.12.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d7/0d/8ebed0c39c53a7e838e2a486da8abb0e52de135f1b376ae2f0b160eb4c1a/google_crc32c-1.8.0-cp313-cp313-macosx_12_0_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/76/61/4017d04559736e903cb972bfaac0dc464b2d7bd945d9070cfa2526b7596e/imagecodecs-2025.11.11-cp311-abi3-macosx_10_15_x86_64.whl
+      - pypi: https://files.pythonhosted.org/packages/2c/9b/f51d28e75927657105ee1861999f10a3ca67fe7f8810a7cb5f032e429235/imagecodecs-2026.1.1-cp311-abi3-macosx_10_14_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/fb/fe/301e0936b79bcab4cacc7548bf2853fc28dced0a578bab1f7ef53c9aa75b/imageio-2.37.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a4/ed/1f1afb2e9e7f38a545d628f864d562a5ae64fe6f7a10e28ffb9b185b4e89/importlib_resources-6.5.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl
@@ -2056,7 +2056,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/0c/d5/c5db1ea3394c6e1732fb3286b3bd878b59507a8f77d32a2cebda7d7b7cd4/donfig-0.8.1.post1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/51/c7/b64cae5dba3a1b138d7123ec36bb5ccd39d39939f18454407e5468f4763f/fsspec-2025.12.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d1/db/000f15b41724589b0e7bc24bc7a8967898d8d3bc8caf64c513d91ef1f6c0/google_crc32c-1.8.0-cp313-cp313-macosx_12_0_arm64.whl
-      - pypi: https://files.pythonhosted.org/packages/8f/27/0494b31c65a4dbb09206962f7a056ff9df5388ab13e1dddc27ecf47238df/imagecodecs-2025.11.11-cp311-abi3-macosx_11_0_arm64.whl
+      - pypi: https://files.pythonhosted.org/packages/46/90/3df503c5e022553089a4cb7f6a12c9f98762a4874328c1227c769758c8df/imagecodecs-2026.1.1-cp311-abi3-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/fb/fe/301e0936b79bcab4cacc7548bf2853fc28dced0a578bab1f7ef53c9aa75b/imageio-2.37.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a4/ed/1f1afb2e9e7f38a545d628f864d562a5ae64fe6f7a10e28ffb9b185b4e89/importlib_resources-6.5.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl
@@ -2228,7 +2228,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/0c/d5/c5db1ea3394c6e1732fb3286b3bd878b59507a8f77d32a2cebda7d7b7cd4/donfig-0.8.1.post1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/51/c7/b64cae5dba3a1b138d7123ec36bb5ccd39d39939f18454407e5468f4763f/fsspec-2025.12.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/92/b1/d3cbd4d988afb3d8e4db94ca953df429ed6db7282ed0e700d25e6c7bfc8d/google_crc32c-1.8.0-cp313-cp313-win_amd64.whl
-      - pypi: https://files.pythonhosted.org/packages/01/b8/287a2d64f746e3bdf44693d2013b5fb7440eafe1dca08a35a0fd30458d33/imagecodecs-2025.11.11-cp311-abi3-win_amd64.whl
+      - pypi: https://files.pythonhosted.org/packages/2d/eb/b7060403b75b3fb863aa2282dcb55b9c07f85146b8df430d4d74acb9bc49/imagecodecs-2026.1.1-cp311-abi3-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/fb/fe/301e0936b79bcab4cacc7548bf2853fc28dced0a578bab1f7ef53c9aa75b/imageio-2.37.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a4/ed/1f1afb2e9e7f38a545d628f864d562a5ae64fe6f7a10e28ffb9b185b4e89/importlib_resources-6.5.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl
@@ -2354,10 +2354,10 @@ packages:
   purls: []
   size: 595290
   timestamp: 1744668754404
-- pypi: https://files.pythonhosted.org/packages/7f/9c/36c5c37947ebfb8c7f22e0eb6e4d188ee2d53aa3880f3f2744fb894f0cb1/anyio-4.12.0-py3-none-any.whl
+- pypi: https://files.pythonhosted.org/packages/38/0e/27be9fdef66e72d64c0cdc3cc2823101b80585f8119b5c112c2e8f5f7dab/anyio-4.12.1-py3-none-any.whl
   name: anyio
-  version: 4.12.0
-  sha256: dad2376a628f98eeca4881fc56cd06affd18f659b17a747d3ff0307ced94b1bb
+  version: 4.12.1
+  sha256: d405828884fc140aa80a3c667b8beed277f1dfedec42ba031bd6ac3db606ab6c
   requires_dist:
   - exceptiongroup>=1.0.2 ; python_full_version < '3.11'
   - idna>=2.8
@@ -3762,10 +3762,10 @@ packages:
   - pkg:pypi/idna?source=hash-mapping
   size: 50721
   timestamp: 1760286526795
-- pypi: https://files.pythonhosted.org/packages/01/b8/287a2d64f746e3bdf44693d2013b5fb7440eafe1dca08a35a0fd30458d33/imagecodecs-2025.11.11-cp311-abi3-win_amd64.whl
+- pypi: https://files.pythonhosted.org/packages/2c/9b/f51d28e75927657105ee1861999f10a3ca67fe7f8810a7cb5f032e429235/imagecodecs-2026.1.1-cp311-abi3-macosx_10_14_x86_64.whl
   name: imagecodecs
-  version: 2025.11.11
-  sha256: 4252b15f5ba55bc7d7aacf621f6bb6e73fd70e66d56277a1f26563198b2cd576
+  version: 2026.1.1
+  sha256: ddbe8175d102180a3eac12151dff564aabfbbf6818b91f3751202a45dd197966
   requires_dist:
   - numpy
   - matplotlib ; extra == 'all'
@@ -3775,10 +3775,11 @@ packages:
   - pytest-run-parallel ; extra == 'test'
   - tifffile ; extra == 'test'
   - czifile ; extra == 'test'
+  - liffile ; extra == 'test'
+  - backports-zstd ; extra == 'test'
   - blosc ; extra == 'test'
   - blosc2 ; extra == 'test'
   - brotli ; extra == 'test'
-  - zstd ; extra == 'test'
   - lz4 ; extra == 'test'
   - pyliblzfse ; extra == 'test'
   - python-lzf ; extra == 'test'
@@ -3789,10 +3790,10 @@ packages:
   - numcodecs ; extra == 'test'
   - kerchunk ; extra == 'test'
   requires_python: '>=3.11'
-- pypi: https://files.pythonhosted.org/packages/76/61/4017d04559736e903cb972bfaac0dc464b2d7bd945d9070cfa2526b7596e/imagecodecs-2025.11.11-cp311-abi3-macosx_10_15_x86_64.whl
+- pypi: https://files.pythonhosted.org/packages/2d/eb/b7060403b75b3fb863aa2282dcb55b9c07f85146b8df430d4d74acb9bc49/imagecodecs-2026.1.1-cp311-abi3-win_amd64.whl
   name: imagecodecs
-  version: 2025.11.11
-  sha256: f5d01cc85ca2fe354302b3650f4848e8f1d3174200277b7cb2624abed4d02ea5
+  version: 2026.1.1
+  sha256: da312557677b233802f57f083271e9a4c561770a3ae3886d715fdc9c7cb07336
   requires_dist:
   - numpy
   - matplotlib ; extra == 'all'
@@ -3802,10 +3803,11 @@ packages:
   - pytest-run-parallel ; extra == 'test'
   - tifffile ; extra == 'test'
   - czifile ; extra == 'test'
+  - liffile ; extra == 'test'
+  - backports-zstd ; extra == 'test'
   - blosc ; extra == 'test'
   - blosc2 ; extra == 'test'
   - brotli ; extra == 'test'
-  - zstd ; extra == 'test'
   - lz4 ; extra == 'test'
   - pyliblzfse ; extra == 'test'
   - python-lzf ; extra == 'test'
@@ -3816,10 +3818,10 @@ packages:
   - numcodecs ; extra == 'test'
   - kerchunk ; extra == 'test'
   requires_python: '>=3.11'
-- pypi: https://files.pythonhosted.org/packages/8f/27/0494b31c65a4dbb09206962f7a056ff9df5388ab13e1dddc27ecf47238df/imagecodecs-2025.11.11-cp311-abi3-macosx_11_0_arm64.whl
+- pypi: https://files.pythonhosted.org/packages/46/90/3df503c5e022553089a4cb7f6a12c9f98762a4874328c1227c769758c8df/imagecodecs-2026.1.1-cp311-abi3-macosx_11_0_arm64.whl
   name: imagecodecs
-  version: 2025.11.11
-  sha256: 45a865690275a3a8893c4c54377c678a7b361ebe13dd3a9e22c66443a96b1c2a
+  version: 2026.1.1
+  sha256: d9f9f1954cf4b2dd290e6bac9ac3ba391f3104bac76c0632f5c3b3e0ea532420
   requires_dist:
   - numpy
   - matplotlib ; extra == 'all'
@@ -3829,10 +3831,11 @@ packages:
   - pytest-run-parallel ; extra == 'test'
   - tifffile ; extra == 'test'
   - czifile ; extra == 'test'
+  - liffile ; extra == 'test'
+  - backports-zstd ; extra == 'test'
   - blosc ; extra == 'test'
   - blosc2 ; extra == 'test'
   - brotli ; extra == 'test'
-  - zstd ; extra == 'test'
   - lz4 ; extra == 'test'
   - pyliblzfse ; extra == 'test'
   - python-lzf ; extra == 'test'
@@ -3843,10 +3846,10 @@ packages:
   - numcodecs ; extra == 'test'
   - kerchunk ; extra == 'test'
   requires_python: '>=3.11'
-- pypi: https://files.pythonhosted.org/packages/a8/ac/fde1f9f99ebe7d8b989bb0005883b69f35abd6ac2d677e0a0caf23f29961/imagecodecs-2025.11.11-cp311-abi3-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
+- pypi: https://files.pythonhosted.org/packages/59/81/d967317829a265c3a25c69791f7d2c8ce529d4bbcb1d8312a3cd1c6d2886/imagecodecs-2026.1.1-cp311-abi3-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
   name: imagecodecs
-  version: 2025.11.11
-  sha256: d4a3894b62ca6ad0c4d75cb0a0aac2a525c4a5c4a2a60defc5d7fb716a4bb355
+  version: 2026.1.1
+  sha256: ad867cd5910af53ebfb19f745eaee7288e0a60674302dbd0f01707a5ba522b24
   requires_dist:
   - numpy
   - matplotlib ; extra == 'all'
@@ -3856,10 +3859,11 @@ packages:
   - pytest-run-parallel ; extra == 'test'
   - tifffile ; extra == 'test'
   - czifile ; extra == 'test'
+  - liffile ; extra == 'test'
+  - backports-zstd ; extra == 'test'
   - blosc ; extra == 'test'
   - blosc2 ; extra == 'test'
   - brotli ; extra == 'test'
-  - zstd ; extra == 'test'
   - lz4 ; extra == 'test'
   - pyliblzfse ; extra == 'test'
   - python-lzf ; extra == 'test'
@@ -3870,10 +3874,10 @@ packages:
   - numcodecs ; extra == 'test'
   - kerchunk ; extra == 'test'
   requires_python: '>=3.11'
-- pypi: https://files.pythonhosted.org/packages/ca/5e/d98ce5608a48efff8f07139b11e4e76f7a05471dc327fb28e696afa7504c/imagecodecs-2025.11.11-cp311-abi3-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl
+- pypi: https://files.pythonhosted.org/packages/7d/3d/8061ce17ed4ae72338948bf164b40bbb989cf71325a13f169d8fbeb22ce2/imagecodecs-2026.1.1-cp311-abi3-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl
   name: imagecodecs
-  version: 2025.11.11
-  sha256: be6e2f4b6601b57cfc9fba2382da7e02ad43c44e3b037adbf275a11f688b231f
+  version: 2026.1.1
+  sha256: 6b1a40124ad7e36474a70413f81d39d0840e7b0749833b84d90ba7f1034cca2a
   requires_dist:
   - numpy
   - matplotlib ; extra == 'all'
@@ -3883,10 +3887,11 @@ packages:
   - pytest-run-parallel ; extra == 'test'
   - tifffile ; extra == 'test'
   - czifile ; extra == 'test'
+  - liffile ; extra == 'test'
+  - backports-zstd ; extra == 'test'
   - blosc ; extra == 'test'
   - blosc2 ; extra == 'test'
   - brotli ; extra == 'test'
-  - zstd ; extra == 'test'
   - lz4 ; extra == 'test'
   - pyliblzfse ; extra == 'test'
   - python-lzf ; extra == 'test'
