@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: MIT
 import sys
 import tempfile
-from collections.abc import MutableMapping
 from dataclasses import asdict
 from pathlib import Path, PurePosixPath
 from typing import Optional, Union, Tuple, Dict, List
@@ -27,12 +26,7 @@ from .v04.zarr_metadata import Metadata as Metadata_v04
 from .v05.zarr_metadata import Metadata as Metadata_v05
 from .rfc4 import is_rfc4_enabled
 from .rfc9_zip import is_ozx_path, write_store_to_zip
-
-# Zarr Python 3
-if hasattr(zarr.storage, "StoreLike"):
-    StoreLike = zarr.storage.StoreLike
-else:
-    StoreLike = Union[MutableMapping, str, Path, zarr.storage.BaseStore]
+from ._zarr_types import StoreLike
 from ._zarr_kwargs import zarr_kwargs
 
 
@@ -364,30 +358,11 @@ def _prepare_metadata(
         method_type = multiscales.method.value
         method_metadata = get_method_metadata(multiscales.method)
 
-    if version == "0.4" and isinstance(metadata, Metadata_v05):
-        metadata = Metadata_v04(
-            axes=metadata.axes,
-            datasets=metadata.datasets,
-            coordinateTransformations=metadata.coordinateTransformations,
-            name=metadata.name,
-            type=method_type,
-            metadata=method_metadata,
-        )
-    elif version == "0.5" and isinstance(metadata, Metadata_v04):
-        metadata = Metadata_v05(
-            axes=metadata.axes,
-            datasets=metadata.datasets,
-            coordinateTransformations=metadata.coordinateTransformations,
-            name=metadata.name,
-            type=method_type,
-            metadata=method_metadata,
-        )
-    else:
-        # Update the existing metadata object with the type
-        if hasattr(metadata, "type"):
-            metadata.type = method_type
+    metadata = metadata.to_version(version)
+    metadata.type = method_type
+    metadata.metadata = method_metadata
 
-    dimension_names = tuple([ax.name for ax in metadata.axes])
+    dimension_names = metadata.dimension_names
     dimension_names_kwargs = (
         {"dimension_names": dimension_names} if version != "0.4" else {}
     )
