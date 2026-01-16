@@ -229,3 +229,100 @@ test.describe("NGFF Zarr Browser Bundle Tests", () => {
     expect(performanceResult.validationsPerSecond).toBeGreaterThan(1000); // Should be able to validate 1000+ times per second
   });
 });
+
+test.describe("fromNgffZarr Browser Tests", () => {
+  test.beforeEach(async ({ page }) => {
+    // Navigate to the bundle test page (which has access to the bundle)
+    await page.goto("/bundle-test");
+
+    // Wait for the page to fully load
+    await page.waitForLoadState("networkidle");
+  });
+
+  test("should load fromNgffZarr function from browser bundle", async ({ page }) => {
+    const loadResult = await page.evaluate(async () => {
+      try {
+        // Import the browser bundle
+        const ngffZarr = await import("./ngff-zarr.bundle.js");
+        return {
+          success: "fromNgffZarr" in ngffZarr,
+          hasFromNgffZarr: "fromNgffZarr" in ngffZarr,
+          type: typeof ngffZarr.fromNgffZarr,
+          exports: Object.keys(ngffZarr).filter((k) =>
+            k.includes("Zarr") || k.includes("Store") || k.includes("Ngff")
+          ),
+        };
+      } catch (error) {
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
+    });
+
+    expect(loadResult.success).toBeTruthy();
+    expect(loadResult.hasFromNgffZarr).toBeTruthy();
+    expect(loadResult.type).toBe("function");
+  });
+
+  test("should reject local file paths in browser", async ({ page }) => {
+    const rejectLocalResult = await page.evaluate(async () => {
+      try {
+        const ngffZarr = await import("./ngff-zarr.bundle.js");
+
+        // Try to use a local file path - should be rejected in browser
+        try {
+          await ngffZarr.fromNgffZarr("/tmp/some_file.zarr", {
+            validate: false,
+          });
+          return {
+            rejectedAsExpected: false,
+            error: "Local file path was not rejected",
+          };
+        } catch (error) {
+          // Check that the error message indicates browser incompatibility
+          const rejectedCorrectly = error.message.includes("browser") ||
+            error.message.includes("Local file") ||
+            error.message.includes("HTTP") ||
+            error.message.includes("MemoryStore");
+          return {
+            rejectedAsExpected: rejectedCorrectly,
+            error: error.message,
+          };
+        }
+      } catch (error) {
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
+    });
+
+    expect(rejectLocalResult.rejectedAsExpected).toBeTruthy();
+  });
+
+  test("should have related types available in bundle", async ({ page }) => {
+    const typesResult = await page.evaluate(async () => {
+      try {
+        const ngffZarr = await import("./ngff-zarr.bundle.js");
+
+        return {
+          hasNgffImage: "NgffImage" in ngffZarr,
+          hasMultiscales: "Multiscales" in ngffZarr,
+          hasMetadataSchema: "MetadataSchema" in ngffZarr,
+          fromNgffZarrParamCount: ngffZarr.fromNgffZarr.length,
+        };
+      } catch (error) {
+        return {
+          success: false,
+          error: error.message,
+        };
+      }
+    });
+
+    expect(typesResult.hasNgffImage).toBeTruthy();
+    expect(typesResult.hasMultiscales).toBeTruthy();
+    // Function should accept (store, options?) - 1 required, 1 optional
+    expect(typesResult.fromNgffZarrParamCount).toBeLessThanOrEqual(2);
+  });
+});
