@@ -35,10 +35,6 @@ def _itkwasm_blur_and_downsample(
 
     # chunk does not have metadata attached, values are ITK defaults
     image = itkwasm.image_from_array(image_data, is_vector=is_vector)
-    from rich import print
-
-    print("is_vector:", is_vector)
-    print("ITK Image:", image)
 
     # Skip this image block if it has 0 voxels
     block_size = image.size
