@@ -514,6 +514,35 @@ def _write_array_with_tensorstore(
         )
 
 
+def _prepare_zarr_kwargs(
+    to_zarr_kwargs: Dict, major_version_zarr: int, version_dask: str
+):
+    """Prepare zarr kwargs for dask.array.to_zarr.
+
+    This helper function ensures that correct kwargs are passed on based on which version of zarr
+    and dask is being used. The different versions support different sets of arguments.
+    """
+    is_zarr_v2 = to_zarr_kwargs.get("zarr_format") == 2
+    is_zarr_v3_plus = zarr_version_major >= 3
+    dask_shard_supported = Version(version_dask) >= Version("2025.12.0")
+
+    if is_zarr_v3_plus and is_zarr_v2:
+        if dask_shard_supported:
+            # New dask uses chunk_key_encoding
+            to_zarr_kwargs["chunk_key_encoding"] = {"name": "v2", "separator": "/"}
+            to_zarr_kwargs.pop("dimension_separator", None)
+        else:
+            # Old dask uses dimension_separator
+            to_zarr_kwargs["dimension_separator"] = "/"
+            to_zarr_kwargs.pop("chunk_key_encoding", None)
+
+    # New dask doesn't accept zarr_format in zarr_array_kwargs
+    if dask_shard_supported:
+        to_zarr_kwargs.pop("zarr_format", None)
+
+    return to_zarr_kwargs
+
+
 def _write_array_direct(
     arr: dask.array.Array,
     store: StoreLike,
@@ -581,23 +610,10 @@ def _write_array_direct(
         else:
             array[:] = arr.compute()
     else:
-        if (
-            to_zarr_kwargs["zarr_format"] == 2
-            and zarr_version_major >= 3
-            and Version(dask.__version__) < Version("2025.12.0")
-        ):
-            to_zarr_kwargs["dimension_separator"] = "/"
-            # Conditional needed for backward compatibility with dask<2025.12.0
-            if "chunk_key_encoding" in to_zarr_kwargs:
-                del to_zarr_kwargs["chunk_key_encoding"]
-        if zarr_version_major >= 3 and Version(dask.__version__) >= Version(
-            "2025.12.0"
-        ):
-            if to_zarr_kwargs["zarr_format"] == 2:
-                to_zarr_kwargs["chunk_key_encoding"] = {"name": "v2", "separator": "/"}
-                if "dimension_separator" in to_zarr_kwargs:
-                    del to_zarr_kwargs["dimension_separator"]
-            del to_zarr_kwargs["zarr_format"]
+        to_zarr_kwargs = _prepare_zarr_kwargs(
+            to_zarr_kwargs, zarr_version_major, dask.__version__
+        )
+
         target = (
             zarr_array if (region is not None and zarr_array is not None) else store
         )
