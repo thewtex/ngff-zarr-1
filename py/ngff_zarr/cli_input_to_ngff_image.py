@@ -19,7 +19,7 @@ def cli_input_to_ngff_image(
 ) -> NgffImage:
     if backend is ConversionBackend.NGFF_ZARR:
         # Handle both .ozx and .zarr files
-        if isinstance(input[0], str) and input[0].endswith('.ozx'):
+        if isinstance(input[0], str) and input[0].endswith(".ozx"):
             # Use from_ngff_zarr which now handles .ozx files
             multiscales = from_ngff_zarr(input[0])
             return multiscales.images[output_scale]
