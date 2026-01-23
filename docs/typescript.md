@@ -785,14 +785,13 @@ The TypeScript API closely mirrors the Python interface:
 | `NgffImage` dataclass | `NgffImage` interface |
 | `Multiscales` dataclass | `Multiscales` interface |
 | `dask.array.Array` | `DaskArray` (metadata) |
-| Pydantic validation | Zod schema validation |
+| JSON Schema validation | JSON Schema validation |
 
 ### Key Differences
 
 1. **Naming conventions**: Python uses snake_case, TypeScript uses camelCase
 2. **Data handling**: Python uses Dask arrays, TypeScript uses array metadata
-3. **Validation**: Python uses Pydantic, TypeScript uses Zod
-4. **Async**: TypeScript I/O operations are async by default
+3. **Async**: TypeScript I/O operations are async by default
 
 ## 🐛 Troubleshooting
 
