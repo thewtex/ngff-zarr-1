@@ -682,14 +682,19 @@ def _handle_large_array_writing(
 
         # Apply _find_optimal_chunk_size to the shard shape to ensure it divides evenly
         optimized_shard_shape = tuple(
-            [_find_optimal_chunk_size(s, arr.shape[i]) for i, s in enumerate(shard_shape)]
+            [
+                _find_optimal_chunk_size(s, arr.shape[i])
+                for i, s in enumerate(shard_shape)
+            ]
         )
 
         # Ensure internal_chunk_shape divides evenly into optimized_shard_shape
         if internal_chunk_shape is not None:
             # Adjust each internal chunk to be a divisor of the corresponding shard dimension
             adjusted_internal_chunks = []
-            for shard_dim, internal_dim in zip(optimized_shard_shape, internal_chunk_shape):
+            for shard_dim, internal_dim in zip(
+                optimized_shard_shape, internal_chunk_shape
+            ):
                 # Find the best divisor of shard_dim that's close to internal_dim
                 if shard_dim % internal_dim == 0:
                     # Already divides evenly
@@ -702,8 +707,10 @@ def _handle_large_array_writing(
         else:
             # No internal chunks specified, use defaults based on array chunks
             internal_chunk_shape = tuple(
-                [_find_optimal_chunk_size(c[0], s)
-                 for c, s in zip(arr.chunks, optimized_shard_shape)]
+                [
+                    _find_optimal_chunk_size(c[0], s)
+                    for c, s in zip(arr.chunks, optimized_shard_shape)
+                ]
             )
 
         # Configure the sharding codec with proper defaults
@@ -743,14 +750,20 @@ def _handle_large_array_writing(
     elif sharding_kwargs:
         # For Zarr v2 or other cases with sharding but no _shard_shape
         chunks = tuple(
-            [_find_optimal_chunk_size(c[0], arr.shape[i]) for i, c in enumerate(arr.chunks)]
+            [
+                _find_optimal_chunk_size(c[0], arr.shape[i])
+                for i, c in enumerate(arr.chunks)
+            ]
         )
         zarr_chunk_shape = chunks
         sharding_kwargs_clean = sharding_kwargs
     else:
         # No sharding
         chunks = tuple(
-            [_find_optimal_chunk_size(c[0], arr.shape[i]) for i, c in enumerate(arr.chunks)]
+            [
+                _find_optimal_chunk_size(c[0], arr.shape[i])
+                for i, c in enumerate(arr.chunks)
+            ]
         )
         chunk_kwargs = {"chunks": chunks}
         zarr_chunk_shape = chunks
@@ -988,11 +1001,7 @@ def _prepare_next_scale(
     if index >= nscales - 1:
         return None
     # Minimize task graph depth
-    if (
-        multiscales.scale_factors
-        and multiscales.method
-        and multiscales.chunks
-    ):
+    if multiscales.scale_factors and multiscales.method and multiscales.chunks:
         for callback in image.computed_callbacks:
             callback()
         image.computed_callbacks = []
@@ -1007,7 +1016,9 @@ def _prepare_next_scale(
         if index > 0:
             # If scales have been passed as list of integers
             if isinstance(next_multiscales_factor, int):
-                next_multiscales_factor = next_multiscales_factor // multiscales.scale_factors[index - 1]
+                next_multiscales_factor = (
+                    next_multiscales_factor // multiscales.scale_factors[index - 1]
+                )
             # If scales have been passed as dict of per-dimension factors
             else:
                 updated_factors = {}
@@ -1085,19 +1096,22 @@ def to_ngff_zarr(
     # RFC-9: Handle .ozx (zipped OME-Zarr) files
     if isinstance(store, (str, Path)) and is_ozx_path(store):
         if version != "0.5":
-            raise ValueError("RFC-9 zipped OME-Zarr (.ozx) requires OME-Zarr version 0.5")
-        
+            raise ValueError(
+                "RFC-9 zipped OME-Zarr (.ozx) requires OME-Zarr version 0.5"
+            )
+
         # Default chunks_per_shard to 2 for .ozx files if not specified
         if chunks_per_shard is None:
             chunks_per_shard = 2
-        
+
         # Determine if we should use memory or disk for intermediate storage
         total_memory_usage = sum(memory_usage(img) for img in multiscales.images)
         use_memory_store = total_memory_usage <= config.memory_target
-        
+
         if use_memory_store:
             # Small dataset: use memory store
             from zarr.storage import MemoryStore
+
             temp_store = MemoryStore()
         else:
             # Large dataset: use temporary directory store in cache
@@ -1105,10 +1119,14 @@ def to_ngff_zarr(
                 LocalStore = zarr.storage.DirectoryStore
             else:
                 LocalStore = zarr.storage.LocalStore
-            
-            temp_dir = tempfile.mkdtemp(dir=config.cache_store.path if hasattr(config.cache_store, 'path') else None)
+
+            temp_dir = tempfile.mkdtemp(
+                dir=config.cache_store.path
+                if hasattr(config.cache_store, "path")
+                else None
+            )
             temp_store = LocalStore(temp_dir)
-        
+
         try:
             # Write to temporary store first
             _to_ngff_zarr_impl(
@@ -1123,20 +1141,25 @@ def to_ngff_zarr(
                 enabled_rfcs=enabled_rfcs,
                 **kwargs,
             )
-            
+
             # Write temp store to .ozx file
             write_store_to_zip(temp_store, store, version=version)
         finally:
             # Clean up temporary directory if used
             if not use_memory_store:
                 import shutil
-                if hasattr(zarr.storage, "DirectoryStore") and isinstance(temp_store, zarr.storage.DirectoryStore):
+
+                if hasattr(zarr.storage, "DirectoryStore") and isinstance(
+                    temp_store, zarr.storage.DirectoryStore
+                ):
                     shutil.rmtree(temp_store.dir_path(), ignore_errors=True)
-                elif hasattr(zarr.storage, "LocalStore") and isinstance(temp_store, zarr.storage.LocalStore):
+                elif hasattr(zarr.storage, "LocalStore") and isinstance(
+                    temp_store, zarr.storage.LocalStore
+                ):
                     shutil.rmtree(temp_store.root, ignore_errors=True)
-        
+
         return
-    
+
     # Standard (non-.ozx) path
     _to_ngff_zarr_impl(
         store,
