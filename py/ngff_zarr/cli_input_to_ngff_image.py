@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) Fideus Labs LLC
 # SPDX-License-Identifier: MIT
 import sys
+from pathlib import Path
 
 import zarr
 from dask.array.image import imread as daimread
@@ -19,7 +20,7 @@ def cli_input_to_ngff_image(
 ) -> NgffImage:
     if backend is ConversionBackend.NGFF_ZARR:
         # Handle both .ozx and .zarr files
-        if isinstance(input[0], str) and input[0].endswith('.ozx'):
+        if isinstance(input[0], str) and input[0].endswith(".ozx"):
             # Use from_ngff_zarr which now handles .ozx files
             multiscales = from_ngff_zarr(input[0])
             return multiscales.images[output_scale]
@@ -45,7 +46,8 @@ def cli_input_to_ngff_image(
         except ImportError:
             print("[red]Please install the [i]itkwasm-image-io[/i] package.")
             sys.exit(1)
-        image = itkwasm_image_io.imread(input[0])
+        # This will fail on windows systems if Path is not used and string is passed as input.
+        image = itkwasm_image_io.imread(Path(input[0]))
         return itk_image_to_ngff_image(image)
     if backend is ConversionBackend.ITK:
         try:

@@ -29,12 +29,12 @@ class Metadata:
             return self
         else:
             raise ValueError(f"Unsupported version conversion: 0.5 -> {version}")
-        
+
     @classmethod
     def from_version(cls, metadata: "Metadata") -> "Metadata":
         """Convert metadata from specified NGFF version."""
         from ..v04.zarr_metadata import Metadata as Metadata_v04
-        
+
         if isinstance(metadata, Metadata_v04):
             return cls._from_v04(metadata)
         else:
@@ -42,7 +42,7 @@ class Metadata:
 
     def _to_v04(self) -> "Metadata":
         from ..v04.zarr_metadata import Metadata as Metadata_v04
-        
+
         metadata = Metadata_v04(
             axes=self.axes,
             datasets=self.datasets,
@@ -53,10 +53,9 @@ class Metadata:
             omero=self.omero,
         )
         return metadata
-    
+
     @classmethod
     def _from_v04(cls, metadata_v04: "Metadata") -> "Metadata":
-        
         metadata = cls(
             axes=metadata_v04.axes,
             datasets=metadata_v04.datasets,
@@ -74,15 +73,15 @@ class Metadata:
         root_attrs: dict,
         store: StoreLike,
         validate: bool = False,
-        ) -> tuple["Metadata", list["NgffImage"]]:
+    ) -> tuple["Metadata", list["NgffImage"]]:  # noqa: F821
         from ..v04.zarr_metadata import Metadata as Metadata_v04
 
         v4_metadata, images = Metadata_v04._from_zarr_attrs(
-            root_attrs['ome'], store, validate=validate
+            root_attrs["ome"], store, validate=validate
         )
         metadata = cls._from_v04(v4_metadata)
         return metadata, images
-    
+
     @property
     def dimension_names(self) -> tuple:
         return tuple([ax.name for ax in self.axes])
